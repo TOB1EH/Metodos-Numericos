@@ -1,18 +1,12 @@
 #include <stdio.h>
-#include <math.h>    // Para funciones matemáticas
 #include <stdlib.h>  // Para funciones de memoria dinámica
+#include <math.h>    // Para funciones matemáticas
 #include "ctype.h"   // Para tolower()
+#include "matriz_desde_archivo/matriz_desde_archivo.h"
+#include "../libreria_de_aditamentos/aditamentos_ui.h"
 
 #define RUTA_MATRIZ "matriz.txt"
-
-/**
- * @brief Pausa la ejecución hasta que el usuario presione ENTER.
- */
-void pausa()
-{
-    printf("\nPresione ENTER para continuar...");
-    getchar();
-}
+#define MAX_ITER 10000 // Número máximo de iteraciones para métodos iterativos
 
 /**
  * @brief Solicita al usuario que confirme la matriz cargada desde el archivo.
@@ -22,31 +16,6 @@ void pausa()
  */
 void confirmarMatriz(double ***A, double **b, int *n);
 
-/**
- * @brief Muestra el menú de opciones y obtiene la selección del usuario.
- * @param opcion Puntero donde se guarda la opción elegida.
- */
-void opcionMenu(char *opcion);
-
-/**
- * @brief Lee un sistema de ecuaciones lineales desde un archivo.
- * @param filename Nombre del archivo.
- * @param A Puntero a la matriz A (salida).
- * @param b Puntero al vector b (salida).
- * @param n Puntero al tamaño del sistema (salida).
- * @return 0 si todo salió bien, 1 si hubo error.
- *
- * El archivo debe tener n filas, cada una con n coeficientes y el término independiente.
- */
-int leerSistemaDesdeArchivo(const char *filename, double ***A, double **b, int *n);
-
-/**
- * @brief Libera la memoria reservada para la matriz y el vector.
- * @param A Matriz de coeficientes.
- * @param b Vector de términos independientes.
- * @param n Tamaño del sistema.
- */
-void liberarMemoria(double **A, double *b, int n);
 
 /**
  * @brief Resuelve el sistema de ecuaciones usando el método de eliminación de Gauss.
@@ -59,6 +28,18 @@ void liberarMemoria(double **A, double *b, int n);
  * Imprime la matriz triangular superior, el determinante y la solución del sistema.
  */
 void eliminacionGauss(double **A, double *b, int n);
+
+/**
+ * @brief Resuelve el sistema de ecuaciones usando el método de Jacobi.
+ * @param A Matriz de coeficientes.
+ * @param b Vector de términos independientes.
+ * @param n Tamaño del sistema.
+ *
+ * Este método es iterativo y se basa en la descomposición de la matriz A
+ * en sus componentes diagonal, inferior y superior.
+ * Imprime la solución aproximada del sistema.
+ */
+void jacobi (double **A, double *b, int n);
 
 int main(int argc, char const *argv[])
 {
@@ -102,7 +83,12 @@ int main(int argc, char const *argv[])
             printf("--------------------------------------------------\n");
             printf("         MÉTODO DE JACOBI (No implementado)\n");
             printf("--------------------------------------------------\n");
+            confirmarMatriz(&A, &b, &n);
             pausa();
+            system("clear");
+            jacobi(A, b, n);
+            pausa();
+            liberarMemoria(A, b, n);
             break;
         case 'c':
             system("clear");
@@ -134,6 +120,7 @@ void confirmarMatriz(double ***A, double **b, int *n)
     printf("--------------------------------------------------\n");
     printf("Al presionar ENTER confirma que la matriz cargada es correcta.\n");
     pausa();
+    system("clear");
 
     if (leerSistemaDesdeArchivo(RUTA_MATRIZ, A, b, n) != 0)
     {
@@ -141,79 +128,6 @@ void confirmarMatriz(double ***A, double **b, int *n)
         pausa();
         return;
     }
-}
-
-void opcionMenu(char *opcion)
-{
-    printf("Ingrese una opción: ");
-    scanf(" %c", opcion);
-    *opcion = tolower(*opcion); // Convierte el caracter a minúscula
-    while (getchar() != '\n'); // Limpia el buffer
-}
-
-int leerSistemaDesdeArchivo(const char *filename, double ***A, double **b, int *n)
-{
-    FILE *file = fopen(filename, "r");
-    if (file == NULL) {
-        printf("[ERROR] No se pudo abrir el archivo\n");
-        return 1;
-    }
-
-    // Contar el número de filas (n)
-    *n = 0;
-    char line[1024];
-    while (fgets(line, sizeof(line), file)) {
-        (*n)++;
-    }
-    rewind(file);
-
-    // Crear matriz A y vector b
-    *A = (double **)malloc((*n) * sizeof(double *));
-    *b = (double *)malloc((*n) * sizeof(double));
-    if (!(*A) || !(*b)) {
-        printf("[ERROR] Error de memoria\n");
-        fclose(file);
-        return 1;
-    }
-
-    // Leer los datos en una sola pasada
-    for (int i = 0; i < *n; i++) {
-        (*A)[i] = (double *)malloc((*n) * sizeof(double));
-        if (!(*A)[i]) {
-            printf("[ERROR] Error de memoria\n");
-            fclose(file);
-            return 1;
-        }
-        for (int j = 0; j < *n; j++) {
-            fscanf(file, "%lf", &((*A)[i][j]));
-        }
-        fscanf(file, "%lf", &((*b)[i]));
-    }
-    fclose(file);
-
-    // Imprimir para control
-    printf("\n--------------------------------------------------\n");
-    printf("Se obtuvo el siguiente sistema de ecuaciones del archivo:\n");
-    printf("n = %d\n", *n);
-    printf("Matriz A y vector b:\n");
-    for (int i = 0; i < *n; i++) {
-        for (int j = 0; j < *n; j++)
-            printf("%8.3lf ", (*A)[i][j]);
-        printf("| %8.3lf\n", (*b)[i]);
-    }
-    printf("--------------------------------------------------\n");
-    pausa();
-
-    return 0;
-}
-
-void liberarMemoria(double **A, double *b, int n)
-{
-    for (int i = 0; i < n; i++) {
-        free(A[i]);
-    }
-    free(A);
-    free(b);
 }
 
 /**
@@ -335,4 +249,134 @@ void eliminacionGauss(double **A, double *b, int n)
 
     // Liberar memoria
     free(x);
+}
+
+/**
+ * @brief Resuelve el sistema de ecuaciones usando el método de Jacobi.
+ * 
+ * Este método es iterativo y se basa en la descomposición de la matriz A
+ * en sus componentes diagonal, inferior y superior. Se verifica que la matriz
+ * sea diagonalmente dominante para asegurar la convergencia del método.
+ * 
+ * El método itera hasta que el error entre iteraciones sea menor que la tolerancia
+ * especificada por el usuario o hasta alcanzar el número máximo de iteraciones.
+ * 
+ * @param A Matriz de coeficientes.
+ * @param b Vector de términos independientes.
+ * @param n Tamaño del sistema.
+ * 
+ * Imprime la evolución del proceso iterativo, la convergencia y la solución aproximada
+ * de forma clara y amigable, similar al método de eliminación de Gauss.
+ */
+void jacobi (double **A, double *b, int n)
+{
+    double suma = 0.0;
+
+    // Verificar si es Diagonalmente Dominante
+    for (int i = 0; i < n; i++)
+    {
+        suma = 0.0;
+
+        // Calcular la suma de los valores absolutos de los elementos no diagonales en la fila i
+        for (int j = 0; j < n; j++)
+        {
+            // Sumar los valores absolutos de los elementos no diagonales
+            if (i != j)
+                suma += fabs(A[i][j]);
+        }
+
+        // Verificar la condición de diagonalmente dominante
+        if (fabs(A[i][i]) < suma)
+        {
+            printf("[ADVERTENCIA] La matriz no es diagonalmente dominante en la fila %d.\n", i);
+            printf("El método de Jacobi puede no converger.\n");
+            exit(EXIT_FAILURE);
+        }
+        // Verificar que el elemento diagonal no sea cero
+        if (A[i][i] == 0)
+        {
+            printf("[ERROR] La matriz tiene un elemento diagonal cero en la fila %d.\n", i);
+            printf("El método de Jacobi no puede aplicarse.\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    // Implementación del método de Jacobi
+    double *x_nuevo = (double *)malloc(n * sizeof(double)); // Vector solución nuevo
+    double *x_viejo = (double *)malloc(n * sizeof(double)); // Vector solución anterior
+    if (x_nuevo == NULL || x_viejo == NULL)
+    {
+        printf("[ERROR] No se pudo asignar memoria para los vectores solución.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Inicializar x_viejo con ceros
+    for (int i = 0; i < n; i++)
+        x_viejo[i] = 0.0;
+
+    int iteracion = 0; // Contador de iteraciones
+    double tol = 0.0;  // Tolerancia para la convergencia
+    double error = 0.0; // Error de la iteración
+    double error_viejo = 1000.0; // Error para control
+
+    printf("Ingrese la tolerancia deseada (ej. 0.0001 = 1e-4): ");
+    scanf("%lf", &tol);
+    while (getchar() != '\n'); // Limpia el buffer
+
+    printf("\n--------------------------------------------------\n");
+    printf("Iteración | Error          | Valores aproximados\n");
+    printf("--------------------------------------------------\n");
+
+    do
+    {
+        for (int i = 0; i < n; i++)
+        {
+            suma = 0.0;
+            for (int j = 0; j < n; j++)
+            {
+                if (i != j)
+                    suma += A[i][j] * x_viejo[j];
+            }
+            x_nuevo[i] = (b[i] - suma) / A[i][i];
+        }
+
+        error = 0.0; // Reiniciar el error para la siguiente iteración
+        for (size_t i = 0; i < n; i++)
+            error += pow(x_nuevo[i] - x_viejo[i], 2);
+        error = sqrt(error);
+
+        // Imprimir el estado actual de la iteración
+        printf("%9d | %14.6e |", iteracion + 1, error);
+        for (size_t i = 0; i < n; i++)
+            printf(" %10.6lf", x_nuevo[i]);
+        printf("\n");
+
+        if (error > error_viejo)
+        {
+            printf("[ADVERTENCIA] El método de Jacobi no está convergiendo.\n");
+            free(x_nuevo);
+            free(x_viejo);
+            exit(EXIT_FAILURE);
+        }
+        error_viejo = error;
+
+        // Actualizar x_viejo para la siguiente iteración
+        for (size_t i = 0; i < n; i++)
+            x_viejo[i] = x_nuevo[i];
+
+        iteracion++;
+
+    } while (error > tol && iteracion < MAX_ITER);
+
+    printf("--------------------------------------------------\n");
+    printf("\nEl método de Jacobi convergió en %d iteraciones con un error de %.6e\n", iteracion, error);
+    printf("Solución aproximada:\n");
+    printf("--------------------------------------------------\n");
+    for (size_t i = 0; i < n; i++)
+        printf("  x[%zu] = %10.6lf\n", i, x_nuevo[i]);
+    printf("--------------------------------------------------\n");
+
+    // Liberar memoria
+    free(x_nuevo);
+    free(x_viejo);
 }
