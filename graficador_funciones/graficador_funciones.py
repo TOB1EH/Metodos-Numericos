@@ -11,8 +11,8 @@ Características básicas:
 - Detección automática de raíces aproximadas
 - Interfaz simple y directa
 
-Autor: BLACKBOXAI
-Versión: 2.0 (Simplificada)
+Autor: TOBIAS FUNES y BLACKBOXAI
+Versión: 2.0
 """
 
 import matplotlib.pyplot as plt
