@@ -105,6 +105,21 @@ double f(double x);
 double f_prima(double x);
 
 /**
+ * @brief Calcula el valor de la función de iteración g(x) para el método de punto fijo.
+ * @param x Valor en el que se evalúa la función.
+ * @return Resultado de la funcion g(x).
+ */
+double g(double x);
+
+/**
+ * @brief Calcula la derivada de la función de iteración g(x).
+ * @param x Valor en el que se evalúa la derivada de la función.
+ * @return Resultado de la derivada de g en x.
+ */
+double g_prima(double x);
+
+
+/**
  * @brief Ejecuta los métodos cerrados para encontrar raíces.
  * 
  * Métodos implementados:
@@ -222,14 +237,32 @@ double f(double x)
 {
     // return sqrt(sin(sqrt(x)));
     // return (x * x - sin(sqrt(x)));
-    return log(x) + exp(sin(x)) - x;
+    //return log(x) + exp(sin(x)) - x;
+    return (2*x + log(x) - sin(3*x));
 }
 
 double f_prima(double x)
 {
     // Derivada numérica central para mayor precisión
-    double h = 1e-5;
+    // double h = 1e-5;
+    double h = 0.01;
     return (f(x + h) - f(x - h)) / (2 * h);
+    // return (3*f(x) - 4*f(x - h) + f(x - 2*h)) / (2 * h);
+}
+
+double g(double x)
+{
+    // Ecuación f(x) = 0 -> 2*x + log(x) - sin(3*x) = 0
+    // Despejando x: x = (sin(3*x) - log(x)) / 2
+    return (sin(3 * x) - log(x)) / 2.0;
+}
+
+double g_prima(double x)
+{
+    // Derivada numérica de g(x)
+    double h = 1e-5;
+    // return (g(x + h) - g(x - h)) / (2 * h);
+    return (3*g(x) - 4*g(x - h) + g(x - 2*h)) / (2 * h);
 }
 
 void metodosCerrados ()
@@ -402,11 +435,23 @@ void puntoFijo ()
     printf("Ingrese la tolerancia: ");
     scanf("%lf", &tol);
 
+    // Verificar la condición de convergencia UNA SOLA VEZ al inicio.
+    if (fabs(g_prima(x_0)) >=1)
+    {
+        printf("\n[ERROR] No se puede aplicar el método de punto fijo en x0 = %.6lf, no converge.\n", x_0);
+        printf("Presione ENTER para continuar...");
+        getchar(); // Captura el ENTER pendiente del scanf anterior
+        getchar(); // Espera que el usuario presione ENTER
+        
+        system("clear"); // Limpiar la pantalla (Linux/Mac). En Windows usar "cls"
+        return; // Error: no se puede aplicar el método
+    }
+
     i = 0; // Reiniciar contador de iteraciones
 
     do
     {
-        if (fabs(f_prima(x_0)) >=1)
+        if (fabs(g_prima(x_0)) >=1)
         {
             printf("\n[ERROR] No se puede aplicar el método de punto fijo en x0 = %.6lf, no converge.\n", x_0);
             printf("Presione ENTER para continuar...");
@@ -416,11 +461,10 @@ void puntoFijo ()
             system("clear"); // Limpiar la pantalla (Linux/Mac). En Windows usar "cls"
             return; // Error: no se puede aplicar el método
         }
-
         i++; // Incrementar contador de iteraciones
 
         /* Calcular el siguiente punto */
-        x_1 = f(x_0);
+        x_1 = g(x_0);
 
         /* Actualizar el error */
         error_abs = fabs(x_1 - x_0);
@@ -510,7 +554,7 @@ void newtonRaphson ()
     printf("Error porcentual estimado: %lf %%\n", error_ptual);
     printf("Iteraciones: %d\n", i);
     if (fabs(f(x_1)) < 0.01)
-        printf("Criterio de parada: tolerancia alcanzada. El metodo correctamente.\n");
+        printf("Criterio de parada: tolerancia alcanzada.\n");
     else
         printf("Criterio de parada: máximo de iteraciones alcanzado.\n");
     printf("========================================\n");
