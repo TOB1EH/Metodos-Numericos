@@ -415,12 +415,29 @@ void euler ()
     scanf("%lf", &x_f);
     printf("Ingrese el valor inicial de y (y_0): ");
     scanf("%lf", &y_0);
-    // printf("Ingrese el paso de integración (h): ");
-    // scanf("%lf", &h);
-    printf("Ingrese el número de pasos (n): ");
-    scanf("%d", &n);
-
-    h = (x_f - x_0) / n; // Calcular el paso de integración
+    
+    // Preguntar si se ingresará n o h
+    char opcion;
+    printf("\n¿Qué desea ingresar?\n");
+    printf("  n) Número de subintervalos (n)\n");
+    printf("  h) Tamaño de paso (h)\n");
+    printf("Opción: ");
+    scanf(" %c", &opcion);
+    
+    if (opcion == 'n' || opcion == 'N') {
+        printf("Ingrese el número de subintervalos (n): ");
+        scanf("%d", &n);
+        h = (x_f - x_0) / n; // Calcular el paso de integración
+    } else if (opcion == 'h' || opcion == 'H') {
+        printf("Ingrese el tamaño de paso (h): ");
+        scanf("%lf", &h);
+        n = (int)((x_f - x_0) / h); // Calcular el número de pasos
+    } else {
+        printf("\n✗ Opción inválida. Usando n por defecto.\n");
+        printf("Ingrese el número de subintervalos (n): ");
+        scanf("%d", &n);
+        h = (x_f - x_0) / n;
+    }
 
     x = (double *)malloc((n + 1) * sizeof(double));
     y = (double *)malloc((n + 1) * sizeof(double));
@@ -604,10 +621,29 @@ void heun()
     scanf("%lf", &x_f);
     printf("Ingrese el valor inicial de y (y_0): ");
     scanf("%lf", &y_0);
-    printf("Ingrese el número de pasos (n): ");
-    scanf("%d", &n);
-
-    h = (x_f - x_0) / n; // Calcular el paso de integración
+    
+    // Preguntar si se ingresará n o h
+    char opcion;
+    printf("\n¿Qué desea ingresar?\n");
+    printf("  n) Número de subintervalos (n)\n");
+    printf("  h) Tamaño de paso (h)\n");
+    printf("Opción: ");
+    scanf(" %c", &opcion);
+    
+    if (opcion == 'n' || opcion == 'N') {
+        printf("Ingrese el número de subintervalos (n): ");
+        scanf("%d", &n);
+        h = (x_f - x_0) / n; // Calcular el paso de integración
+    } else if (opcion == 'h' || opcion == 'H') {
+        printf("Ingrese el tamaño de paso (h): ");
+        scanf("%lf", &h);
+        n = (int)((x_f - x_0) / h); // Calcular el número de pasos
+    } else {
+        printf("\n✗ Opción inválida. Usando n por defecto.\n");
+        printf("Ingrese el número de subintervalos (n): ");
+        scanf("%d", &n);
+        h = (x_f - x_0) / n;
+    }
 
     /* Reservar memoria para los arrays */
     x = (double *)malloc((n + 1) * sizeof(double));
@@ -769,10 +805,29 @@ void puntoMedio()
     scanf("%lf", &x_f);
     printf("Ingrese el valor inicial de y (y_0): ");
     scanf("%lf", &y_0);
-    printf("Ingrese el número de pasos (n): ");
-    scanf("%d", &n);
-
-    h = (x_f - x_0) / n; /* Calcular el tamaño del paso */
+    
+    // Preguntar si se ingresará n o h
+    char opcion;
+    printf("\n¿Qué desea ingresar?\n");
+    printf("  n) Número de subintervalos (n)\n");
+    printf("  h) Tamaño de paso (h)\n");
+    printf("Opción: ");
+    scanf(" %c", &opcion);
+    
+    if (opcion == 'n' || opcion == 'N') {
+        printf("Ingrese el número de subintervalos (n): ");
+        scanf("%d", &n);
+        h = (x_f - x_0) / n; // Calcular el paso de integración
+    } else if (opcion == 'h' || opcion == 'H') {
+        printf("Ingrese el tamaño de paso (h): ");
+        scanf("%lf", &h);
+        n = (int)((x_f - x_0) / h); // Calcular el número de pasos
+    } else {
+        printf("\n✗ Opción inválida. Usando n por defecto.\n");
+        printf("Ingrese el número de subintervalos (n): ");
+        scanf("%d", &n);
+        h = (x_f - x_0) / n;
+    }
 
     /* Reservar memoria para los arrays */
     x = (double *)malloc((n + 1) * sizeof(double));
@@ -959,10 +1014,29 @@ void rk4()
     scanf("%lf", &x_f);
     printf("Ingrese el valor inicial de y (y_0): ");
     scanf("%lf", &y_0);
-    printf("Ingrese el número de pasos (n): ");
-    scanf("%d", &n);
-
-    h = (x_f - x_0) / n; /* Calcular el tamaño del paso */
+    
+    // Preguntar si se ingresará n o h
+    char opcion;
+    printf("\n¿Qué desea ingresar?\n");
+    printf("  n) Número de subintervalos (n)\n");
+    printf("  h) Tamaño de paso (h)\n");
+    printf("Opción: ");
+    scanf(" %c", &opcion);
+    
+    if (opcion == 'n' || opcion == 'N') {
+        printf("Ingrese el número de subintervalos (n): ");
+        scanf("%d", &n);
+        h = (x_f - x_0) / n; // Calcular el paso de integración
+    } else if (opcion == 'h' || opcion == 'H') {
+        printf("Ingrese el tamaño de paso (h): ");
+        scanf("%lf", &h);
+        n = (int)((x_f - x_0) / h); // Calcular el número de pasos
+    } else {
+        printf("\n✗ Opción inválida. Usando n por defecto.\n");
+        printf("Ingrese el número de subintervalos (n): ");
+        scanf("%d", &n);
+        h = (x_f - x_0) / n;
+    }
 
     /* Reservar memoria para los arrays */
     x = (double *)malloc((n + 1) * sizeof(double));
@@ -1297,19 +1371,54 @@ void metodoDospasos()
     int n;               // Número de pasos
     double h;            // Tamaño del paso
     
-    /* Solicitar número de subintervalos */
-    printf("Ingrese el número de subintervalos (n): ");
-    scanf("%d", &n);
+    /* Preguntar si se ingresará n o h */
+    char opcion;
+    printf("¿Qué desea ingresar?\n");
+    printf("  n) Número de subintervalos (n)\n");
+    printf("  h) Tamaño de paso (h)\n");
+    printf("Opción: ");
+    scanf(" %c", &opcion);
     
-    if (n < 2) {
-        printf("\n✗ Error: Se necesitan al menos 2 pasos para método de dos pasos.\n");
-        printf("Presione ENTER para continuar...");
-        getchar();
-        getchar();
-        return;
+    if (opcion == 'n' || opcion == 'N') {
+        printf("Ingrese el número de subintervalos (n): ");
+        scanf("%d", &n);
+        
+        if (n < 2) {
+            printf("\n✗ Error: Se necesitan al menos 2 pasos para método de dos pasos.\n");
+            printf("Presione ENTER para continuar...");
+            getchar();
+            getchar();
+            return;
+        }
+        
+        h = (x_f - x_0) / n; // Calcular el paso
+    } else if (opcion == 'h' || opcion == 'H') {
+        printf("Ingrese el tamaño de paso (h): ");
+        scanf("%lf", &h);
+        n = (int)((x_f - x_0) / h); // Calcular el número de pasos
+        
+        if (n < 2) {
+            printf("\n✗ Error: El paso h es muy grande. Se necesitan al menos 2 pasos.\n");
+            printf("Presione ENTER para continuar...");
+            getchar();
+            getchar();
+            return;
+        }
+    } else {
+        printf("\n✗ Opción inválida. Usando n por defecto.\n");
+        printf("Ingrese el número de subintervalos (n): ");
+        scanf("%d", &n);
+        
+        if (n < 2) {
+            printf("\n✗ Error: Se necesitan al menos 2 pasos para método de dos pasos.\n");
+            printf("Presione ENTER para continuar...");
+            getchar();
+            getchar();
+            return;
+        }
+        
+        h = (x_f - x_0) / n;
     }
-    
-    h = (x_f - x_0) / n;
     
     printf("\n📊 PARÁMETROS:\n");
     printf("────────────────────────────────────────────────────\n");
