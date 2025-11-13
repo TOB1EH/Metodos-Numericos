@@ -29,7 +29,7 @@ void getNodesFromFile(const char *filename, double **x, double **y, int *n);
 /* ============================================================================
    FUNCIÓN PRINCIPAL
    ============================================================================ */
-int main(int argc, char const *argv[])
+int main(void)
 {
     char opcion;
 
