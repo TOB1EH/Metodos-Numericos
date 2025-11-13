@@ -22,6 +22,10 @@ void diferenciacionAtrasNodos();     // A partir de nodos de archivo
 void diferenciacionCentradaFunc();   // A partir de función
 void diferenciacionCentradaNodos();  // A partir de nodos de archivo
 
+// Diferenciación ÓPTIMA (híbrida: adelante + centrada + atrás)
+void diferenciacionOptimaFunc();     // A partir de función
+void diferenciacionOptimaNodos();    // A partir de nodos de archivo
+
 // Funciones auxiliares
 void opcionMenu(char *opcion);
 void getNodesFromFile(const char *filename, double **x, double **y, int *n);
@@ -51,6 +55,10 @@ int main(void)
         printf("║    e) Usando función                       ║\n");
         printf("║    f) Usando nodos de archivo              ║\n");
         printf("╠════════════════════════════════════════════╣\n");
+        printf("║  DIFERENCIACIÓN ÓPTIMA (Híbrida)          ║\n");
+        printf("║    h) Usando función                       ║\n");
+        printf("║    i) Usando nodos de archivo              ║\n");
+        printf("╠════════════════════════════════════════════╣\n");
         printf("║    g) Salir                                ║\n");
         printf("╚════════════════════════════════════════════╝\n");
         printf("Seleccione una opción: ");
@@ -75,6 +83,12 @@ int main(void)
             break;
         case 'f':
             diferenciacionCentradaNodos();
+            break;
+        case 'h':
+            diferenciacionOptimaFunc();
+            break;
+        case 'i':
+            diferenciacionOptimaNodos();
             break;
         case 'g':
             printf("\n✓ Saliendo del programa...\n");
@@ -710,6 +724,300 @@ void diferenciacionCentradaNodos()
         }
         fclose(archivo);
         printf("✓ Guardado en 'derivadas_centrada_nodos.txt'\n");
+    }
+    
+    free(x);
+    free(y);
+    free(f_p);
+    
+    printf("\nPresione ENTER...");
+    getchar();
+    getchar();
+}
+/* ============================================================================
+   DIFERENCIACIÓN ÓPTIMA (HÍBRIDA) - USANDO FUNCIÓN
+   ============================================================================
+   
+   MÉTODO HÍBRIDO QUE COMBINA:
+   - ADELANTE para el primer punto:  f'(x_0) = [f(x_1) - f(x_0)] / h
+   - CENTRADA para puntos interiores: f'(x_i) = [f(x_{i+1}) - f(x_{i-1})] / (2h)
+   - ATRÁS para el último punto:      f'(x_n) = [f(x_n) - f(x_{n-1})] / h
+   
+   VENTAJAS:
+   - Máxima precisión en puntos interiores (error O(h²))
+   - Manejo apropiado de extremos
+   - Método estándar en análisis numérico
+   
+   ESTE ES EL MÉTODO RECOMENDADO PARA USO GENERAL
+   ============================================================================ */
+
+void diferenciacionOptimaFunc()
+{
+    double a, b, h;
+    int n;
+    double *x = NULL;
+    double *f_p = NULL;
+    FILE *archivo = NULL;
+    
+    printf("\n╔════════════════════════════════════════════╗\n");
+    printf("║  DIFERENCIACIÓN ÓPTIMA - Híbrida (Función) ║\n");
+    printf("╚════════════════════════════════════════════╝\n");
+    printf("\n✓ Este método combina:\n");
+    printf("  • Adelante para el primer punto\n");
+    printf("  • Centrada para puntos interiores (máxima precisión)\n");
+    printf("  • Atrás para el último punto\n\n");
+    
+    printf("Intervalo [a, b]:\n");
+    printf("  a = ");
+    scanf("%lf", &a);
+    printf("  b = ");
+    scanf("%lf", &b);
+    printf("Número de subintervalos n: ");
+    scanf("%d", &n);
+    
+    if (n < 1)
+    {
+        printf("Error: n debe ser al menos 1.\n");
+        return;
+    }
+    
+    h = (b - a) / n;
+    
+    x = (double *)malloc((n + 1) * sizeof(double));
+    f_p = (double *)malloc((n + 1) * sizeof(double));
+    
+    if (x == NULL || f_p == NULL)
+    {
+        printf("Error: No se pudo asignar memoria.\n");
+        free(x);
+        free(f_p);
+        return;
+    }
+    
+    /* Generar puntos x_i */
+    for (int i = 0; i <= n; i++)
+    {
+        x[i] = a + i * h;
+    }
+    
+    /* PRIMER PUNTO: Diferencia hacia ADELANTE
+     * f'(x_0) = [f(x_0 + h) - f(x_0)] / h
+     */
+    f_p[0] = (f(x[0] + h) - f(x[0])) / h;
+    
+    /* PUNTOS INTERIORES: Diferencia CENTRADA (más precisa)
+     * f'(x_i) = [f(x_i + h) - f(x_i - h)] / (2h)
+     */
+    for (int i = 1; i < n; i++)
+    {
+        f_p[i] = (f(x[i] + h) - f(x[i] - h)) / (2.0 * h);
+    }
+    
+    /* ÚLTIMO PUNTO: Diferencia hacia ATRÁS
+     * f'(x_n) = [f(x_n) - f(x_n - h)] / h
+     */
+    f_p[n] = (f(x[n]) - f(x[n] - h)) / h;
+    
+    /* Mostrar resultados */
+    printf("\n════════════════════════════════════════════════════════\n");
+    printf("  RESULTADOS - MÉTODO ÓPTIMO HÍBRIDO\n");
+    printf("════════════════════════════════════════════════════════\n");
+    printf("h = %.6lf\n", h);
+    printf("Puntos: %d\n\n", n + 1);
+    printf("  i      x_i          f'(x_i)         Método\n");
+    printf("────────────────────────────────────────────────────────\n");
+    for (int i = 0; i <= n; i++)
+    {
+        const char *metodo;
+        if (i == 0)
+            metodo = "Adelante (O(h))";
+        else if (i == n)
+            metodo = "Atrás (O(h))";
+        else
+            metodo = "Centrada (O(h²))";
+            
+        printf("%3d | %10.6lf | %14.10lf | %s\n", i, x[i], f_p[i], metodo);
+    }
+    printf("════════════════════════════════════════════════════════\n");
+    
+    /* Guardar en archivo */
+    archivo = fopen("derivadas_optima_func.txt", "w");
+    if (archivo != NULL)
+    {
+        fprintf(archivo, "# Diferenciación ÓPTIMA - Método Híbrido (función)\n");
+        fprintf(archivo, "#\n");
+        fprintf(archivo, "# MÉTODO COMBINADO:\n");
+        fprintf(archivo, "#   - Primer punto:  f'(x_0) = [f(x_1) - f(x_0)] / h  (adelante)\n");
+        fprintf(archivo, "#   - Interiores:    f'(x_i) = [f(x_{i+1}) - f(x_{i-1})] / (2h)  (centrada, O(h²))\n");
+        fprintf(archivo, "#   - Último punto:  f'(x_n) = [f(x_n) - f(x_{n-1})] / h  (atrás)\n");
+        fprintf(archivo, "#\n");
+        fprintf(archivo, "# Intervalo: [%.6lf, %.6lf]\n", a, b);
+        fprintf(archivo, "# h = %.6lf\n", h);
+        fprintf(archivo, "#\n");
+        fprintf(archivo, "# i\tx_i\tf'(x_i)\tmetodo\n");
+        for (int i = 0; i <= n; i++)
+        {
+            const char *metodo;
+            if (i == 0)
+                metodo = "adelante";
+            else if (i == n)
+                metodo = "atras";
+            else
+                metodo = "centrada";
+                
+            fprintf(archivo, "%d\t%.10lf\t%.10lf\t%s\n", i, x[i], f_p[i], metodo);
+        }
+        fclose(archivo);
+        printf("✓ Guardado en 'derivadas_optima_func.txt'\n");
+    }
+    
+    free(x);
+    free(f_p);
+    
+    printf("\nPresione ENTER...");
+    getchar();
+    getchar();
+}
+
+/* ============================================================================
+   DIFERENCIACIÓN ÓPTIMA (HÍBRIDA) - USANDO NODOS
+   ============================================================================
+   
+   Lee nodos desde archivo y aplica el método híbrido óptimo:
+   - ADELANTE para el primer nodo
+   - CENTRADA para nodos interiores (máxima precisión)
+   - ATRÁS para el último nodo
+   
+   VENTAJAS sobre usar un solo método:
+   - Mejor precisión global
+   - Manejo correcto de fronteras
+   - Método estándar en la literatura
+   
+   NOTA: Requiere al menos 2 nodos
+   ============================================================================ */
+
+void diferenciacionOptimaNodos()
+{
+    double *x = NULL;
+    double *y = NULL;
+    double *f_p = NULL;
+    int n;
+    FILE *archivo = NULL;
+    
+    printf("\n╔════════════════════════════════════════════╗\n");
+    printf("║  DIFERENCIACIÓN ÓPTIMA - Híbrida (Nodos)   ║\n");
+    printf("╚════════════════════════════════════════════╝\n");
+    printf("\n✓ Este método combina:\n");
+    printf("  • Adelante para el primer nodo\n");
+    printf("  • Centrada para nodos interiores (máxima precisión)\n");
+    printf("  • Atrás para el último nodo\n\n");
+    
+    getNodesFromFile("nodos.txt", &x, &y, &n);
+    
+    if (n == 0)
+    {
+        return;
+    }
+    
+    if (n < 2)
+    {
+        printf("Error: Se necesitan al menos 2 nodos.\n");
+        free(x);
+        free(y);
+        return;
+    }
+    
+    f_p = (double *)malloc(n * sizeof(double));
+    
+    /* PRIMER NODO: Diferencia hacia ADELANTE
+     * f'(x_0) = [f(x_1) - f(x_0)] / (x_1 - x_0)
+     */
+    double h_primero = x[1] - x[0];
+    f_p[0] = (y[1] - y[0]) / h_primero;
+    
+    /* NODOS INTERIORES: Diferencia CENTRADA (más precisa)
+     * f'(x_i) = [f(x_{i+1}) - f(x_{i-1})] / (x_{i+1} - x_{i-1})
+     * 
+     * Esta fórmula tiene error O(h²), mucho mejor que adelante/atrás O(h)
+     */
+    for (int i = 1; i < n - 1; i++)
+    {
+        double h_centrada = x[i + 1] - x[i - 1];
+        f_p[i] = (y[i + 1] - y[i - 1]) / h_centrada;
+    }
+    
+    /* ÚLTIMO NODO: Diferencia hacia ATRÁS
+     * f'(x_n) = [f(x_n) - f(x_{n-1})] / (x_n - x_{n-1})
+     */
+    double h_ultimo = x[n - 1] - x[n - 2];
+    f_p[n - 1] = (y[n - 1] - y[n - 2]) / h_ultimo;
+    
+    /* Mostrar resultados */
+    printf("\n════════════════════════════════════════════════════════════════════\n");
+    printf("  RESULTADOS - MÉTODO ÓPTIMO HÍBRIDO\n");
+    printf("════════════════════════════════════════════════════════════════════\n");
+    printf("Puntos: %d\n\n", n);
+    printf("  i      x_i          y_i          f'(x_i)         Método\n");
+    printf("────────────────────────────────────────────────────────────────────\n");
+    for (int i = 0; i < n; i++)
+    {
+        const char *metodo;
+        const char *precision;
+        if (i == 0) {
+            metodo = "Adelante";
+            precision = "O(h)";
+        } else if (i == n - 1) {
+            metodo = "Atrás";
+            precision = "O(h)";
+        } else {
+            metodo = "Centrada";
+            precision = "O(h²)";
+        }
+            
+        printf("%3d | %10.6lf | %10.6lf | %14.10lf | %s %s\n", 
+               i, x[i], y[i], f_p[i], metodo, precision);
+    }
+    printf("════════════════════════════════════════════════════════════════════\n");
+    printf("\n✓ Precisión: Mayoría de puntos con error O(h²) (centrada)\n");
+    printf("✓ Solo extremos con error O(h) (adelante/atrás)\n");
+    
+    /* Guardar en archivo */
+    archivo = fopen("derivadas_optima_nodos.txt", "w");
+    if (archivo != NULL)
+    {
+        fprintf(archivo, "# Diferenciación ÓPTIMA - Método Híbrido (nodos)\n");
+        fprintf(archivo, "#\n");
+        fprintf(archivo, "# MÉTODO COMBINADO (RECOMENDADO):\n");
+        fprintf(archivo, "#   - Primer nodo:  f'(x_0) = [y_1 - y_0] / (x_1 - x_0)  (adelante, O(h))\n");
+        fprintf(archivo, "#   - Interiores:   f'(x_i) = [y_{i+1} - y_{i-1}] / (x_{i+1} - x_{i-1})  (centrada, O(h²))\n");
+        fprintf(archivo, "#   - Último nodo:  f'(x_n) = [y_n - y_{n-1}] / (x_n - x_{n-1})  (atrás, O(h))\n");
+        fprintf(archivo, "#\n");
+        fprintf(archivo, "# VENTAJAS:\n");
+        fprintf(archivo, "#   • Máxima precisión en la mayoría de puntos (centrada)\n");
+        fprintf(archivo, "#   • Manejo correcto de extremos\n");
+        fprintf(archivo, "#   • Método estándar en análisis numérico\n");
+        fprintf(archivo, "#\n");
+        fprintf(archivo, "# i\tx_i\ty_i\tf'(x_i)\tmetodo\tprecision\n");
+        for (int i = 0; i < n; i++)
+        {
+            const char *metodo;
+            const char *precision;
+            if (i == 0) {
+                metodo = "adelante";
+                precision = "O(h)";
+            } else if (i == n - 1) {
+                metodo = "atras";
+                precision = "O(h)";
+            } else {
+                metodo = "centrada";
+                precision = "O(h^2)";
+            }
+                
+            fprintf(archivo, "%d\t%.10lf\t%.10lf\t%.10lf\t%s\t%s\n", 
+                   i, x[i], y[i], f_p[i], metodo, precision);
+        }
+        fclose(archivo);
+        printf("✓ Guardado en 'derivadas_optima_nodos.txt'\n");
     }
     
     free(x);
