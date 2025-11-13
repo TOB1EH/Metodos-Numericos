@@ -141,7 +141,7 @@ int main(int argc, char const *argv[])
         printf("Seleccione una opción:\n");
         printf("  a) Regla del Trapecio\n");
         printf("  b) Regla de Simpson Compuesto\n");
-        printf("  c) Coordenadas de Gauss\n");
+        printf("  c) Coordenadas de Gauss Legendre\n");
         printf("  e) Salir\n");
         printf("----------------------------------------\n");
         opcionMenu(&opcion);
@@ -412,25 +412,27 @@ void trapecioCompuesto ()
             printf("========================================\n");
             
             /* Cálculo de errores (opcional) */
-            char calcular_error;
-            printf("\n¿Desea calcular el error? (s/n): ");
-            getchar(); // Limpiar buffer
-            scanf("%c", &calcular_error);
-            
-            if (calcular_error == 's' || calcular_error == 'S') {
-                double valor_exacto;
-                printf("Ingrese el valor exacto de la integral: ");
-                scanf("%lf", &valor_exacto);
+            {
+                char calcular_error;
+                printf("\n¿Desea calcular el error? (s/n): ");
+                getchar(); // Limpiar buffer
+                scanf("%c", &calcular_error);
                 
-                double error_absoluto = fabs(valor_exacto - suma);
-                double error_porcentual = fabs(error_absoluto / valor_exacto) * 100.0;
-                
-                printf("\n--- ANÁLISIS DE ERROR ---\n");
-                printf("Valor exacto:        %.10lf\n", valor_exacto);
-                printf("Valor aproximado:    %.10lf\n", suma);
-                printf("Error absoluto:      %.10lf\n", error_absoluto);
-                printf("Error porcentual:    %.6lf%%\n", error_porcentual);
-                printf("-------------------------\n");
+                if (calcular_error == 's' || calcular_error == 'S') {
+                    double valor_exacto;
+                    printf("Ingrese el valor exacto de la integral: ");
+                    scanf("%lf", &valor_exacto);
+                    
+                    double error_absoluto = fabs(valor_exacto - suma);
+                    double error_porcentual = fabs(error_absoluto / valor_exacto) * 100.0;
+                    
+                    printf("\n--- ANÁLISIS DE ERROR ---\n");
+                    printf("Valor exacto:        %.10lf\n", valor_exacto);
+                    printf("Valor aproximado:    %.10lf\n", suma);
+                    printf("Error absoluto:      %.10lf\n", error_absoluto);
+                    printf("Error porcentual:    %.6lf%%\n", error_porcentual);
+                    printf("-------------------------\n");
+                }
             }
             
             printf("\nNOTA: Esta es una aproximación básica.\n");
@@ -528,27 +530,28 @@ void trapecioCompuesto ()
             printf("========================================\n");
             
             /* Cálculo de errores (opcional) */
-            char calcular_error;
-            printf("\n¿Desea calcular el error? (s/n): ");
-            getchar(); // Limpiar buffer
-            scanf("%c", &calcular_error);
-            
-            if (calcular_error == 's' || calcular_error == 'S') {
-                double valor_exacto;
-                printf("Ingrese el valor exacto de la integral: ");
-                scanf("%lf", &valor_exacto);
+            {
+                char calcular_error;
+                printf("\n¿Desea calcular el error? (s/n): ");
+                getchar(); // Limpiar buffer
+                scanf("%c", &calcular_error);
                 
-                double error_absoluto = fabs(valor_exacto - suma);
-                double error_porcentual = fabs(error_absoluto / valor_exacto) * 100.0;
-                
-                printf("\n--- ANÁLISIS DE ERROR ---\n");
-                printf("Valor exacto:        %.10lf\n", valor_exacto);
-                printf("Valor aproximado:    %.10lf\n", suma);
-                printf("Error absoluto:      %.10lf\n", error_absoluto);
-                printf("Error porcentual:    %.6lf%%\n", error_porcentual);
-                printf("-------------------------\n");
+                if (calcular_error == 's' || calcular_error == 'S') {
+                    double valor_exacto;
+                    printf("Ingrese el valor exacto de la integral: ");
+                    scanf("%lf", &valor_exacto);
+                    
+                    double error_absoluto = fabs(valor_exacto - suma);
+                    double error_porcentual = fabs(error_absoluto / valor_exacto) * 100.0;
+                    
+                    printf("\n--- ANÁLISIS DE ERROR ---\n");
+                    printf("Valor exacto:        %.10lf\n", valor_exacto);
+                    printf("Valor aproximado:    %.10lf\n", suma);
+                    printf("Error absoluto:      %.10lf\n", error_absoluto);
+                    printf("Error porcentual:    %.6lf%%\n", error_porcentual);
+                    printf("-------------------------\n");
+                }
             }
-
 
             printf("\nPresione ENTER para continuar...");
             getchar(); // Captura el ENTER pendiente del scanf anterior
@@ -701,27 +704,28 @@ void trapecioCompuesto ()
             printf("========================================\n");
             
             /* Cálculo de errores (opcional) */
-            char calcular_error;
-            printf("\n¿Desea calcular el error? (s/n): ");
-            getchar(); // Limpiar buffer
-            scanf("%c", &calcular_error);
-            
-            if (calcular_error == 's' || calcular_error == 'S') {
-                double valor_exacto;
-                printf("Ingrese el valor exacto de la integral: ");
-                scanf("%lf", &valor_exacto);
+            {
+                char calcular_error;
+                printf("\n¿Desea calcular el error? (s/n): ");
+                getchar(); // Limpiar buffer
+                scanf("%c", &calcular_error);
                 
-                double error_absoluto = fabs(valor_exacto - suma);
-                double error_porcentual = fabs(error_absoluto / valor_exacto) * 100.0;
-                
-                printf("\n--- ANÁLISIS DE ERROR ---\n");
-                printf("Valor exacto:        %.10lf\n", valor_exacto);
-                printf("Valor aproximado:    %.10lf\n", suma);
-                printf("Error absoluto:      %.10lf\n", error_absoluto);
-                printf("Error porcentual:    %.6lf%%\n", error_porcentual);
-                printf("-------------------------\n");
+                if (calcular_error == 's' || calcular_error == 'S') {
+                    double valor_exacto;
+                    printf("Ingrese el valor exacto de la integral: ");
+                    scanf("%lf", &valor_exacto);
+                    
+                    double error_absoluto = fabs(valor_exacto - suma);
+                    double error_porcentual = fabs(error_absoluto / valor_exacto) * 100.0;
+                    
+                    printf("\n--- ANÁLISIS DE ERROR ---\n");
+                    printf("Valor exacto:        %.10lf\n", valor_exacto);
+                    printf("Valor aproximado:    %.10lf\n", suma);
+                    printf("Error absoluto:      %.10lf\n", error_absoluto);
+                    printf("Error porcentual:    %.6lf%%\n", error_porcentual);
+                    printf("-------------------------\n");
+                }
             }
-
 
             /* Liberar memoria */
             free(x_values);
@@ -1123,27 +1127,28 @@ void simpsonCompuesto ()
             printf("========================================\n");
             
             /* Cálculo de errores (opcional) */
-            char calcular_error;
-            printf("\n¿Desea calcular el error? (s/n): ");
-            getchar(); // Limpiar buffer
-            scanf("%c", &calcular_error);
-            
-            if (calcular_error == 's' || calcular_error == 'S') {
-                double valor_exacto;
-                printf("Ingrese el valor exacto de la integral: ");
-                scanf("%lf", &valor_exacto);
+            {
+                char calcular_error;
+                printf("\n¿Desea calcular el error? (s/n): ");
+                getchar(); // Limpiar buffer
+                scanf("%c", &calcular_error);
                 
-                double error_absoluto = fabs(valor_exacto - suma);
-                double error_porcentual = fabs(error_absoluto / valor_exacto) * 100.0;
-                
-                printf("\n--- ANÁLISIS DE ERROR ---\n");
-                printf("Valor exacto:        %.10lf\n", valor_exacto);
-                printf("Valor aproximado:    %.10lf\n", suma);
-                printf("Error absoluto:      %.10lf\n", error_absoluto);
-                printf("Error porcentual:    %.6lf%%\n", error_porcentual);
-                printf("-------------------------\n");
+                if (calcular_error == 's' || calcular_error == 'S') {
+                    double valor_exacto;
+                    printf("Ingrese el valor exacto de la integral: ");
+                    scanf("%lf", &valor_exacto);
+                    
+                    double error_absoluto = fabs(valor_exacto - suma);
+                    double error_porcentual = fabs(error_absoluto / valor_exacto) * 100.0;
+                    
+                    printf("\n--- ANÁLISIS DE ERROR ---\n");
+                    printf("Valor exacto:        %.10lf\n", valor_exacto);
+                    printf("Valor aproximado:    %.10lf\n", suma);
+                    printf("Error absoluto:      %.10lf\n", error_absoluto);
+                    printf("Error porcentual:    %.6lf%%\n", error_porcentual);
+                    printf("-------------------------\n");
+                }
             }
-
 
             printf("\nPresione ENTER para continuar...");
             getchar(); // Captura el ENTER pendiente del scanf anterior
@@ -1252,27 +1257,28 @@ void simpsonCompuesto ()
             printf("========================================\n");
             
             /* Cálculo de errores (opcional) */
-            char calcular_error;
-            printf("\n¿Desea calcular el error? (s/n): ");
-            getchar(); // Limpiar buffer
-            scanf("%c", &calcular_error);
-            
-            if (calcular_error == 's' || calcular_error == 'S') {
-                double valor_exacto;
-                printf("Ingrese el valor exacto de la integral: ");
-                scanf("%lf", &valor_exacto);
+            {
+                char calcular_error;
+                printf("\n¿Desea calcular el error? (s/n): ");
+                getchar(); // Limpiar buffer
+                scanf("%c", &calcular_error);
                 
-                double error_absoluto = fabs(valor_exacto - suma);
-                double error_porcentual = fabs(error_absoluto / valor_exacto) * 100.0;
-                
-                printf("\n--- ANÁLISIS DE ERROR ---\n");
-                printf("Valor exacto:        %.10lf\n", valor_exacto);
-                printf("Valor aproximado:    %.10lf\n", suma);
-                printf("Error absoluto:      %.10lf\n", error_absoluto);
-                printf("Error porcentual:    %.6lf%%\n", error_porcentual);
-                printf("-------------------------\n");
+                if (calcular_error == 's' || calcular_error == 'S') {
+                    double valor_exacto;
+                    printf("Ingrese el valor exacto de la integral: ");
+                    scanf("%lf", &valor_exacto);
+                    
+                    double error_absoluto = fabs(valor_exacto - suma);
+                    double error_porcentual = fabs(error_absoluto / valor_exacto) * 100.0;
+                    
+                    printf("\n--- ANÁLISIS DE ERROR ---\n");
+                    printf("Valor exacto:        %.10lf\n", valor_exacto);
+                    printf("Valor aproximado:    %.10lf\n", suma);
+                    printf("Error absoluto:      %.10lf\n", error_absoluto);
+                    printf("Error porcentual:    %.6lf%%\n", error_porcentual);
+                    printf("-------------------------\n");
+                }
             }
-
 
             /* Liberar memoria */
             free(x_values);
