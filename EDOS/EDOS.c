@@ -1356,20 +1356,25 @@ void metodoDospasos()
     
     printf("FÓRMULA: y_{i+1} = y_i + h(2f(x_i,y_i) - f(x_{i-1},y_{i-1}))\n\n");
     
-    printf("PROBLEMA A RESOLVER:\n");
+    printf("PROBLEMA GENERAL A RESOLVER:\n");
     printf("  dy/dx = (x·e^(x²))/y\n");
-    printf("  y(0) = 1\n");
-    printf("  Intervalo: x ∈ [0, 1]\n\n");
-    
-    printf("SOLUCIÓN EXACTA: y(x) = e^(x²/2)\n");
+    printf("  Solución exacta: y(x) = e^(x²/2)\n");
     printf("════════════════════════════════════════════════════\n\n");
     
     /* Parámetros del problema */
-    double x_0 = 0.0;    // Condición inicial x_0
-    double y_0 = 1.0;    // Condición inicial y_0
-    double x_f = 1.0;    // Punto final
+    double x_0;          // Condición inicial x_0
+    double y_0;          // Condición inicial y_0
+    double x_f;          // Punto final
     int n;               // Número de pasos
     double h;            // Tamaño del paso
+    
+    /* Solicitar condiciones iniciales y finales */
+    printf("Ingrese el valor inicial de x (x_0): ");
+    scanf("%lf", &x_0);
+    printf("Ingrese el valor final de x (x_f): ");
+    scanf("%lf", &x_f);
+    printf("Ingrese el valor inicial de y, y(x_0) = y_0: ");
+    scanf("%lf", &y_0);
     
     /* Preguntar si se ingresará n o h */
     char opcion;
@@ -1422,8 +1427,8 @@ void metodoDospasos()
     
     printf("\n📊 PARÁMETROS:\n");
     printf("────────────────────────────────────────────────────\n");
-    printf("  Condición inicial: y(%.1lf) = %.1lf\n", x_0, y_0);
-    printf("  Intervalo: [%.1lf, %.1lf]\n", x_0, x_f);
+    printf("  Condición inicial: y(%.4lf) = %.4lf\n", x_0, y_0);
+    printf("  Intervalo: [%.4lf, %.4lf]\n", x_0, x_f);
     printf("  Número de pasos: %d\n", n);
     printf("  Tamaño de paso h: %.6lf\n\n", h);
     
