@@ -51,10 +51,32 @@ Thumbs.db
 *.temp
 *.log
 
-# Ejecutables
+# Ejecutables de C/C++
 *.out
 *.exe
 *.o
+*.a
+*.so
+*.dll
+
+# Archivos de resultados numéricos
+*_resultados.txt
+derivadas_*.txt
+euler_resultados.txt
+sistema_*.txt
+
+# Archivos de respaldo
+*_ori.txt
+*.bak
+*.backup
+
+# Ejecutables específicos del proyecto (sin extensión)
+EDOS/EDOS
+EDOS/Sistema_de_EDO
+Diferenciacion_numerica/MetodosDiferencacion
+Integracion_numerica/MetodosIntegracion
+Ajuste_de_curvas/regresion
+Ajuste_de_curvas/interpolacion-o
 
 # Parciales
 PARCIAL1/
