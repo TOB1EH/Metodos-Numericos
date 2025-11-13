@@ -55,3 +55,6 @@ Thumbs.db
 *.out
 *.exe
 *.o
+
+# Parciales
+PARCIAL1/
