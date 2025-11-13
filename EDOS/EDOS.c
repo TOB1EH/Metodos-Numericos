@@ -219,6 +219,7 @@ void euler();
 void heun();
 void puntoMedio();
 void rk4();
+void metodoDospasos();
 void factorConvergencia(int n, double h, double *x, double *y);
 
 int main(void)
@@ -235,7 +236,8 @@ int main(void)
         printf("  b) Método de Heun (Euler Mejorado)\n");
         printf("  c) Método del Punto Medio\n");
         printf("  d) Método de Runge-Kutta 4to Orden\n");
-        printf("  e) Salir\n");
+        printf("  e) Método de Dos Pasos (Multipaso)\n");
+        printf("  f) Salir\n");
         printf("────────────────────────────────────────────────────\n");
         printf("Ingrese su opción: ");
         scanf(" %c", &opcion);
@@ -255,13 +257,16 @@ int main(void)
             rk4();
             break;
         case 'e':
+            metodoDospasos();
+            break;
+        case 'f':
             printf("\n✓ Saliendo del programa...\n");
             break;
         default:
             printf("\n✗ Opción no válida. Intente de nuevo.\n");
             break;
         }
-    } while (opcion != 'e');
+    } while (opcion != 'f');
     
     return 0;
 }
@@ -1218,4 +1223,269 @@ void factorConvergencia(int n, double h, double *x, double *y)
     free(y2);
     free(x3);
     free(y3);
+}
+/**
+ * ============================================================================
+ * MÉTODO DE DOS PASOS (MULTIPASO)
+ * ============================================================================
+ * 
+ * DESCRIPCIÓN:
+ *   Método multipaso que calcula cada nuevo valor usando los DOS valores
+ *   anteriores. Es más preciso que métodos de un solo paso porque usa
+ *   información histórica de la solución.
+ * 
+ * FÓRMULA:
+ *   y_{i+1} = y_i + h(2f(x_i, y_i) - f(x_{i-1}, y_{i-1}))
+ * 
+ * CARACTERÍSTICAS:
+ *   - Requiere dos valores iniciales: y_0 e y_1
+ *   - Para y_1 se usa un método de un paso (Euler) como "arrancador"
+ *   - Orden del método: O(h²)
+ *   - Más eficiente que RK4 porque solo evalúa f una vez por paso
+ * 
+ * PROBLEMA ESPECÍFICO A RESOLVER:
+ *   dy/dx = (x·e^(x²))/y   con y(0) = 1   en x ∈ [0, 1]
+ * 
+ * SOLUCIÓN ANALÍTICA (por variables separables):
+ *   y·dy = x·e^(x²)·dx
+ *   ∫y·dy = ∫x·e^(x²)·dx
+ *   y²/2 = (1/2)e^(x²) + C
+ *   
+ *   Con y(0) = 1: 1/2 = 1/2·e^0 + C → C = 0
+ *   Por lo tanto: y(x) = e^(x²/2)
+ * 
+ * PSEUDOCÓDIGO:
+ *   1. Leer condición inicial y_0 y parámetros
+ *   2. Calcular y_1 usando método de Euler (arrancador)
+ *   3. Para i = 1, 2, ..., n-1:
+ *      a) Calcular f(x_i, y_i)
+ *      b) Calcular f(x_{i-1}, y_{i-1})
+ *      c) Aplicar fórmula: y_{i+1} = y_i + h(2f_i - f_{i-1})
+ *   4. Mostrar resultados y errores
+ * 
+ * VENTAJAS:
+ *   ✓ Usa información de pasos anteriores
+ *   ✓ Una sola evaluación de f por paso (después del arranque)
+ *   ✓ Buena precisión para métodos multipaso
+ * 
+ * DESVENTAJAS:
+ *   ✗ Necesita método arrancador para y_1
+ *   ✗ No es auto-arrancable
+ *   ✗ Menos preciso que RK4
+ * ============================================================================
+ */
+void metodoDospasos()
+{
+    printf("\n╔════════════════════════════════════════════════════╗\n");
+    printf("║        MÉTODO DE DOS PASOS (MULTIPASO)            ║\n");
+    printf("╚════════════════════════════════════════════════════╝\n\n");
+    
+    printf("FÓRMULA: y_{i+1} = y_i + h(2f(x_i,y_i) - f(x_{i-1},y_{i-1}))\n\n");
+    
+    printf("PROBLEMA A RESOLVER:\n");
+    printf("  dy/dx = (x·e^(x²))/y\n");
+    printf("  y(0) = 1\n");
+    printf("  Intervalo: x ∈ [0, 1]\n\n");
+    
+    printf("SOLUCIÓN EXACTA: y(x) = e^(x²/2)\n");
+    printf("════════════════════════════════════════════════════\n\n");
+    
+    /* Parámetros del problema */
+    double x_0 = 0.0;    // Condición inicial x_0
+    double y_0 = 1.0;    // Condición inicial y_0
+    double x_f = 1.0;    // Punto final
+    int n;               // Número de pasos
+    double h;            // Tamaño del paso
+    
+    /* Solicitar número de subintervalos */
+    printf("Ingrese el número de subintervalos (n): ");
+    scanf("%d", &n);
+    
+    if (n < 2) {
+        printf("\n✗ Error: Se necesitan al menos 2 pasos para método de dos pasos.\n");
+        printf("Presione ENTER para continuar...");
+        getchar();
+        getchar();
+        return;
+    }
+    
+    h = (x_f - x_0) / n;
+    
+    printf("\n📊 PARÁMETROS:\n");
+    printf("────────────────────────────────────────────────────\n");
+    printf("  Condición inicial: y(%.1lf) = %.1lf\n", x_0, y_0);
+    printf("  Intervalo: [%.1lf, %.1lf]\n", x_0, x_f);
+    printf("  Número de pasos: %d\n", n);
+    printf("  Tamaño de paso h: %.6lf\n\n", h);
+    
+    /* Reservar memoria para arrays */
+    double *x = (double *)malloc((n + 1) * sizeof(double));
+    double *y = (double *)malloc((n + 1) * sizeof(double));
+    double *y_exacta = (double *)malloc((n + 1) * sizeof(double));
+    double *error_abs = (double *)malloc((n + 1) * sizeof(double));
+    double *error_rel = (double *)malloc((n + 1) * sizeof(double));
+    double *f_actual = (double *)malloc((n + 1) * sizeof(double));
+    double *f_anterior = (double *)malloc((n + 1) * sizeof(double));
+    
+    if (!x || !y || !y_exacta || !error_abs || !error_rel || !f_actual || !f_anterior) {
+        printf("✗ Error al asignar memoria.\n");
+        return;
+    }
+    
+    /* ========================================
+       PASO 1: INICIALIZACIÓN
+       ======================================== */
+    
+    /* Valor inicial */
+    x[0] = x_0;
+    y[0] = y_0;
+    
+    /* Solución exacta para f(x) = (x·e^(x²))/y: y(x) = e^(x²/2) */
+    y_exacta[0] = exp(x[0] * x[0] / 2.0);
+    error_abs[0] = fabs(y_exacta[0] - y[0]);
+    error_rel[0] = fabs(error_abs[0] / y_exacta[0]) * 100.0;
+    
+    /* Calcular f_0 = f(x_0, y_0) para usar en el siguiente paso */
+    f_anterior[0] = (x[0] * exp(x[0] * x[0])) / y[0];
+    
+    printf("🚀 ARRANQUE DEL MÉTODO:\n");
+    printf("────────────────────────────────────────────────────\n");
+    printf("Usando EULER para calcular y_1 (primer paso)...\n\n");
+    
+    /* ========================================
+       PASO 2: MÉTODO ARRANCADOR (EULER)
+       Calculamos y_1 usando Euler: y_1 = y_0 + h·f(x_0, y_0)
+       ======================================== */
+    
+    x[1] = x_0 + h;
+    y[1] = y[0] + h * f_anterior[0];
+    
+    /* Valores exactos y errores para i=1 */
+    y_exacta[1] = exp(x[1] * x[1] / 2.0);
+    error_abs[1] = fabs(y_exacta[1] - y[1]);
+    error_rel[1] = fabs(error_abs[1] / y_exacta[1]) * 100.0;
+    
+    /* Calcular f_1 para usar en el siguiente paso */
+    f_actual[1] = (x[1] * exp(x[1] * x[1])) / y[1];
+    
+    printf("  i=0: x=%.4lf, y=%.6lf (inicial)\n", x[0], y[0]);
+    printf("  i=1: x=%.4lf, y=%.6lf (Euler)\n\n", x[1], y[1]);
+    
+    /* ========================================
+       PASO 3: MÉTODO DE DOS PASOS
+       y_{i+1} = y_i + h(2f(x_i,y_i) - f(x_{i-1},y_{i-1}))
+       ======================================== */
+    
+    printf("📈 APLICANDO MÉTODO DE DOS PASOS:\n");
+    printf("────────────────────────────────────────────────────\n\n");
+    
+    for (int i = 1; i < n; i++)
+    {
+        /* Calcular nuevo punto x */
+        x[i + 1] = x_0 + (i + 1) * h;
+        
+        /* Guardar f_anterior para este paso */
+        f_anterior[i] = (i == 1) ? f_anterior[0] : f_actual[i-1];
+        
+        /* Calcular f_actual en el punto actual */
+        f_actual[i] = (x[i] * exp(x[i] * x[i])) / y[i];
+        
+        /* FÓRMULA DEL MÉTODO DE DOS PASOS */
+        y[i + 1] = y[i] + h * (2.0 * f_actual[i] - f_anterior[i]);
+        
+        /* Calcular solución exacta y errores */
+        y_exacta[i + 1] = exp(x[i + 1] * x[i + 1] / 2.0);
+        error_abs[i + 1] = fabs(y_exacta[i + 1] - y[i + 1]);
+        error_rel[i + 1] = fabs(error_abs[i + 1] / y_exacta[i + 1]) * 100.0;
+    }
+    
+    /* ========================================
+       PASO 4: MOSTRAR RESULTADOS
+       ======================================== */
+    
+    printf("✅ TABLA DE RESULTADOS:\n");
+    printf("════════════════════════════════════════════════════════════════════════════\n");
+    printf("  i       x_i        y_aprox      y_exacta    Error Abs.   Error Rel.(%%)\n");
+    printf("────────────────────────────────────────────────────────────────────────────\n");
+    
+    for (int i = 0; i <= n; i++)
+    {
+        printf("%3d  %10.6lf  %12.8lf  %12.8lf  %11.2e   %10.6lf\n",
+               i, x[i], y[i], y_exacta[i], error_abs[i], error_rel[i]);
+    }
+    
+    printf("════════════════════════════════════════════════════════════════════════════\n\n");
+    
+    /* ========================================
+       PASO 5: ANÁLISIS DE ERROR
+       ======================================== */
+    
+    /* Calcular error máximo y promedio */
+    double error_max = error_abs[0];
+    double error_prom = 0.0;
+    
+    for (int i = 0; i <= n; i++)
+    {
+        if (error_abs[i] > error_max)
+            error_max = error_abs[i];
+        error_prom += error_abs[i];
+    }
+    error_prom /= (n + 1);
+    
+    printf("📊 ANÁLISIS DE ERROR:\n");
+    printf("════════════════════════════════════════════════════\n");
+    printf("Error máximo:   %.6e\n", error_max);
+    printf("Error promedio: %.6e\n", error_prom);
+    printf("Error final:    %.6e (en x=%.1lf)\n", error_abs[n], x_f);
+    printf("════════════════════════════════════════════════════\n\n");
+    
+    /* Valor final */
+    printf("🎯 RESULTADO FINAL:\n");
+    printf("════════════════════════════════════════════════════\n");
+    printf("y(%.1lf) ≈ %.10lf\n", x_f, y[n]);
+    printf("Exacto:  %.10lf\n", y_exacta[n]);
+    printf("Error:   %.6e (%.6lf%%)\n", error_abs[n], error_rel[n]);
+    printf("════════════════════════════════════════════════════\n\n");
+    
+    /* Guardar resultados en archivo */
+    FILE *archivo = fopen("metodo_dospasos_resultados.txt", "w");
+    if (archivo != NULL)
+    {
+        fprintf(archivo, "# MÉTODO DE DOS PASOS - RESULTADOS\n");
+        fprintf(archivo, "# Problema: dy/dx = (x·e^(x²))/y, y(0)=1\n");
+        fprintf(archivo, "# Solución exacta: y(x) = e^(x²/2)\n");
+        fprintf(archivo, "# Fórmula: y_{i+1} = y_i + h(2f(x_i,y_i) - f(x_{i-1},y_{i-1}))\n");
+        fprintf(archivo, "#\n");
+        fprintf(archivo, "# Parámetros:\n");
+        fprintf(archivo, "#   Intervalo: [%.1lf, %.1lf]\n", x_0, x_f);
+        fprintf(archivo, "#   Paso h: %.6lf\n", h);
+        fprintf(archivo, "#   Número de pasos: %d\n", n);
+        fprintf(archivo, "#\n");
+        fprintf(archivo, "# i\tx_i\ty_aprox\ty_exacta\terror_abs\terror_rel(%%)\n");
+        
+        for (int i = 0; i <= n; i++)
+        {
+            fprintf(archivo, "%d\t%.10lf\t%.10lf\t%.10lf\t%.6e\t%.6lf\n",
+                    i, x[i], y[i], y_exacta[i], error_abs[i], error_rel[i]);
+        }
+        
+        fprintf(archivo, "\n# Error máximo: %.6e\n", error_max);
+        fprintf(archivo, "# Error promedio: %.6e\n", error_prom);
+        
+        fclose(archivo);
+        printf("✓ Resultados guardados en 'metodo_dospasos_resultados.txt'\n\n");
+    }
+    
+    /* Liberar memoria */
+    free(x);
+    free(y);
+    free(y_exacta);
+    free(error_abs);
+    free(error_rel);
+    free(f_actual);
+    free(f_anterior);
+    
+    printf("Presione ENTER para continuar...");
+    getchar();
+    getchar();
 }
