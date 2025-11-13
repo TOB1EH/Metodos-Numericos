@@ -34,17 +34,17 @@
 
 void gaussPivot (double **A, double *b, int n, double *x)
 {
-    int pivote_fila = 0;
+    size_t pivote_fila = 0;
     double aux = 0.0;
     double factor = 0.0;
     double det = 1.0;
 
     // --- FASE 1: Eliminación hacia adelante ---
-    for (size_t i = 0; i < (n-1); i++)
+    for (size_t i = 0; i < (size_t)(n-1); i++)
     {
         // a) Pivoteo Parcial: Encontrar la fila con el máximo pivote en la columna i.
         pivote_fila = i;
-        for (size_t l = (i + 1); l < n; l++)
+        for (size_t l = (i + 1); l < (size_t)n; l++)
         {
             if (fabs(A[l][i]) > fabs(A[pivote_fila][i]))
             {
@@ -55,7 +55,7 @@ void gaussPivot (double **A, double *b, int n, double *x)
         // Intercambiar la fila actual (i) con la fila del pivote si es necesario.
         if (pivote_fila != i) {
             // Intercambiar la fila completa en la matriz A.
-            for (size_t m = i; m < n; m++)
+            for (size_t m = i; m < (size_t)n; m++)
             {
                 aux = A[pivote_fila][m];
                 A[pivote_fila][m] = A[i][m];
@@ -68,7 +68,7 @@ void gaussPivot (double **A, double *b, int n, double *x)
         }
 
         // b) Eliminación: Hacer cero los elementos debajo del pivote A[i][i].
-        for (size_t j = (i + 1); j < n; j++)
+        for (size_t j = (i + 1); j < (size_t)n; j++)
         {
             // Comprobar si el pivote es cero. Si lo es, la matriz es singular.
             if (A[i][i] == 0)
@@ -80,7 +80,7 @@ void gaussPivot (double **A, double *b, int n, double *x)
             factor = (-A[j][i] / A[i][i]);
 
             // Actualizar el resto de la fila j en la matriz A.
-            for (size_t k = i; k < n; k++)
+            for (size_t k = i; k < (size_t)n; k++)
             {
                 A[j][k] += factor * A[i][k];
             }
@@ -92,7 +92,7 @@ void gaussPivot (double **A, double *b, int n, double *x)
 
     // El determinante de una matriz triangular es el producto de su diagonal.
     det = 1.0;
-    for (size_t i = 0; i < n; i++) {
+    for (size_t i = 0; i < (size_t)n; i++) {
         det *= A[i][i];
     }
 
@@ -124,7 +124,7 @@ void gaussPivot (double **A, double *b, int n, double *x)
     printf("\n--------------------------------------------------\n");
     printf("Solución del sistema:\n");
     printf("(Coeficientes del polinomio a0, a1, ...)\n");
-    for (size_t i = 0; i < n; i++)
+    for (size_t i = 0; i < (size_t)n; i++)
         printf("  a%zu = %10.6lf\n", i, x[i]);
     printf("--------------------------------------------------\n");
 }
