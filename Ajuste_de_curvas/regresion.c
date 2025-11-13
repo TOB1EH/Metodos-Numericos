@@ -64,7 +64,7 @@ void leerPuntosDesdeArchivo(const char *filename, double **x_puntos, double **y_
  */
 void imprimirPolinomioRegresion(double *coeficientes, int grado);
 
-int main(int argc, char const *argv[])
+int main(void)
 {
     double *x_puntos = NULL;
     double *y_puntos = NULL;
