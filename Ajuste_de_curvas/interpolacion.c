@@ -196,7 +196,7 @@ void splinesLineales(double *x_puntos, double *y_puntos, int n);
 void splinesCubicas(double *x_puntos, double *y_puntos, int n);
 void funcional (double *x_puntos, double *y_puntos, int n);
 
-int main(int argc, char const *argv[])
+int main(void)
 {
     char opcion = 0; // Opción del menú
     int stopDoWhile = 0; // Controla la salida del bucle principal
@@ -782,7 +782,7 @@ void funcional (double *x_puntos, double *y_puntos, int n)
     }
 
     // 2. Armar la Matriz de Vandermonde A y el vector independiente b.
-    for (size_t i = 0; i < n; i++)
+    for (size_t i = 0; i < (size_t)n; i++)
     {
         // Asignar memoria para las columnas de cada fila
         A[i] = (double *)malloc(n * sizeof(double));
@@ -799,7 +799,7 @@ void funcional (double *x_puntos, double *y_puntos, int n)
             return;
         }
 
-        for (size_t j = 0; j < n; j++)
+        for (size_t j = 0; j < (size_t)n; j++)
         {
             A[i][j] = pow(x_puntos[i], j); // A[i][j] = x_i^j
         }
@@ -825,7 +825,7 @@ void funcional (double *x_puntos, double *y_puntos, int n)
 
     // 5. Evaluar el polinomio en el punto x_i.
     double suma = 0.0;
-    for (size_t i = 0; i < n; i++)
+    for (size_t i = 0; i < (size_t)n; i++)
     {
         suma += coeficientes[i] * pow(x_i, i);
     }
