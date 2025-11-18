@@ -61,6 +61,7 @@ Thumbs.db
 
 # Archivos de resultados numéricos
 *_resultados.txt
+*_results.txt
 derivadas_*.txt
 euler_resultados.txt
 sistema_*.txt
