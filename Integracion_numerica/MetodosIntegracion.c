@@ -201,7 +201,8 @@ double f(double x)
     // return sqrt(sin(sqrt(x)));
     // return (x * x - sin(sqrt(x)));
     //return log(x) + exp(sin(x)) - x;
-    return (2*x + log(x) - sin(3*x));
+    // return (log(pow(x, 2) + 1) - sin(x));
+    return (((2 * x) / (pow(x, 2) + 1)) - cos(x));
 }
 
 /**
