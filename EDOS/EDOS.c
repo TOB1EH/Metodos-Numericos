@@ -219,6 +219,7 @@ void euler();
 void heun();
 void puntoMedio();
 void rk4();
+void rk4_variante();
 void metodoDospasos();
 void factorConvergencia(int n, double h, double *x, double *y);
 
@@ -235,7 +236,8 @@ int main(void)
         printf("  a) Método de Euler\n");
         printf("  b) Método de Heun (Euler Mejorado)\n");
         printf("  c) Método del Punto Medio\n");
-        printf("  d) Método de Runge-Kutta 4to Orden\n");
+        printf("  d) Método de Runge-Kutta 4to Orden (Clásico)\n");
+        printf("  v) Método de Runge-Kutta 4to Orden (Variante)\n");
         printf("  e) Método de Dos Pasos (Multipaso)\n");
         printf("  f) Salir\n");
         printf("────────────────────────────────────────────────────\n");
@@ -255,6 +257,9 @@ int main(void)
             break;
         case 'd':
             rk4();
+            break;
+        case 'v':
+            rk4_variante();
             break;
         case 'e':
             metodoDospasos();
@@ -277,14 +282,16 @@ int main(void)
  * FORMA GENERAL:
  *   dy/dx = f(x, y)
  * 
- * EJEMPLO ACTUAL:
- *   dy/dx = -2xy
+ * PROBLEMA ACTUAL (Problema n°3):
+ *   dy/dx = y - x² + 1
+ *   con y(0) = 0.5, x ∈ [0,2]
  * 
  * Esta función representa el lado derecho de la ecuación diferencial.
  * Para resolver una EDO diferente, simplemente modifique el cuerpo
  * de esta función.
  * 
  * EJEMPLOS DE OTRAS EDOs:
+ *   - dy/dx = -2xy: return -2 * x * y;
  *   - Crecimiento exponencial: return k * y;
  *   - Logística: return r * y * (1 - y/K);
  *   - Oscilador: return -omega * omega * y; (requiere sistema 2x2)
@@ -295,7 +302,8 @@ int main(void)
  */
 double f(double x, double y)
 {
-    return (-2 * x * y);
+    // Problema n°3: dy/dx = y - x² + 1
+    return (y - x * x + 1.0);
 }
 
 /**
@@ -1118,6 +1126,240 @@ void rk4()
 
         fclose(archivo);
         printf("\n✓ Resultados guardados en 'rk4_resultados.txt'\n");
+    }
+
+    /* ==========================================
+       LIBERAR MEMORIA
+       ========================================== */
+    free(x);
+    free(y);
+    
+    printf("\nPresione ENTER para continuar...");
+    getchar();
+    getchar();
+}
+
+/**
+ * @brief Método de Runge-Kutta 4to Orden - Variante específica
+ * 
+ * TEORÍA:
+ * -------
+ * Esta es una variante del método RK4 con coeficientes diferentes.
+ * Se diferencia del RK4 clásico en los puntos de evaluación y los pesos.
+ * 
+ * FÓRMULA DE LA VARIANTE:
+ *   k₁ = f(xᵢ, yᵢ)
+ *   k₂ = f(xᵢ + (1/2)h, yᵢ + (1/4)hk₁)
+ *   k₃ = f(xᵢ + (2/3)h, yᵢ - (1/3)hk₁ + hk₂)
+ *   k₄ = f(xᵢ + h, yᵢ + hk₁ - hk₂ + hk₃)
+ *   yᵢ₊₁ = yᵢ + (h/8)(k₁ + 3k₂ + 3k₃ + k₄)
+ * 
+ * COMPARACIÓN CON RK4 CLÁSICO:
+ *   RK4 Clásico: yᵢ₊₁ = yᵢ + (h/6)(k₁ + 2k₂ + 2k₃ + k₄)
+ *   Variante:    yᵢ₊₁ = yᵢ + (h/8)(k₁ + 3k₂ + 3k₃ + k₄)
+ * 
+ * DIFERENCIAS CLAVE:
+ *   - Coeficiente final: 1/8 en lugar de 1/6
+ *   - Pesos intermedios: 3-3 en lugar de 2-2
+ *   - Punto k₃: evaluado en 2/3 en lugar de 1/2
+ *   - Combinaciones más complejas en k₃ y k₄
+ * 
+ * ERROR:
+ *   - Error de truncamiento local: O(h⁵)
+ *   - Error de truncamiento global: O(h⁴)
+ * 
+ * APLICACIÓN:
+ * Esta variante puede ofrecer mejor estabilidad o precisión para
+ * ciertos tipos de EDOs, dependiendo de las características del problema.
+ * 
+ * SALIDA:
+ *   - Tabla en consola con: i, x[i], y[i]
+ *   - Muestra valores específicos solicitados (y(1.5), y(2.0))
+ *   - Archivo 'rk4_variante_resultados.txt' con los datos paso a paso
+ */
+void rk4_variante()
+{
+    double x_0 = 0.0; // Valor inicial de x
+    double x_f = 0.0; // Valor final de x
+
+    double y_0 = 0.0; // Valor inicial de y
+
+    double h = 0.0;   // Paso de integración
+
+    int n = 0;        // Número de pasos
+
+    double * x = NULL; // Array para almacenar los valores de x
+    double * y = NULL; // Array para almacenar los valores de y
+
+    printf("\n╔════════════════════════════════════════════╗\n");
+    printf("║   MÉTODO RK4 - VARIANTE (Problema n°3)    ║\n");
+    printf("╚════════════════════════════════════════════╝\n");
+    printf("Ingrese el valor inicial de x (x_0): ");
+    scanf("%lf", &x_0);
+    printf("Ingrese el valor final de x (x_f): ");
+    scanf("%lf", &x_f);
+    printf("Ingrese el valor inicial de y (y_0): ");
+    scanf("%lf", &y_0);
+    
+    // Preguntar si se ingresará n o h
+    char opcion;
+    printf("\n¿Qué desea ingresar?\n");
+    printf("  n) Número de subintervalos (n)\n");
+    printf("  h) Tamaño de paso (h)\n");
+    printf("Opción: ");
+    scanf(" %c", &opcion);
+    
+    if (opcion == 'n' || opcion == 'N') {
+        printf("Ingrese el número de subintervalos (n): ");
+        scanf("%d", &n);
+        h = (x_f - x_0) / n; // Calcular el paso de integración
+    } else if (opcion == 'h' || opcion == 'H') {
+        printf("Ingrese el tamaño de paso (h): ");
+        scanf("%lf", &h);
+        n = (int)((x_f - x_0) / h); // Calcular el número de pasos
+        h = (x_f - x_0) / n;  // Recalcular h para exactitud
+    } else {
+        printf("Opción no válida. Usando h por defecto.\n");
+        printf("Ingrese el tamaño de paso (h): ");
+        scanf("%lf", &h);
+        n = (int)((x_f - x_0) / h);
+        h = (x_f - x_0) / n;
+    }
+
+    x = (double *)malloc((n + 1) * sizeof(double));
+    y = (double *)malloc((n + 1) * sizeof(double));
+
+    /* Condiciones iniciales */
+    x[0] = x_0;
+    y[0] = y_0;
+
+    /* ==========================================
+       APLICAR MÉTODO RK4 VARIANTE
+       ========================================== */
+    printf("\n════════════════════════════════════════════════════════════════\n");
+    printf("  ITERACIONES PASO A PASO - RK4 VARIANTE\n");
+    printf("════════════════════════════════════════════════════════════════\n");
+    printf("Fórmula: yᵢ₊₁ = yᵢ + (h/8)(k₁ + 3k₂ + 3k₃ + k₄)\n\n");
+
+    for (int i = 0; i < n; i++)
+    {
+        /* Calcular las pendientes k */
+        double k1 = f(x[i], y[i]);
+        double k2 = f(x[i] + 0.5 * h, y[i] + 0.25 * h * k1);
+        double k3 = f(x[i] + (2.0/3.0) * h, y[i] - (1.0/3.0) * h * k1 + h * k2);
+        double k4 = f(x[i] + h, y[i] + h * k1 - h * k2 + h * k3);
+
+        /* Calcular siguiente valor de y */
+        y[i + 1] = y[i] + (h / 8.0) * (k1 + 3.0 * k2 + 3.0 * k3 + k4);
+        x[i + 1] = x[i] + h;
+
+        /* Mostrar solo algunos pasos clave o todos si n es pequeño */
+        if (n <= 20 || i == 0 || i == n-1 || (i+1) % 5 == 0) {
+            printf("Paso %d:\n", i);
+            printf("  x[%d] = %.4lf\n", i, x[i]);
+            printf("  k₁ = %.10lf\n", k1);
+            printf("  k₂ = %.10lf\n", k2);
+            printf("  k₃ = %.10lf\n", k3);
+            printf("  k₄ = %.10lf\n", k4);
+            printf("  y[%d] = %.10lf\n\n", i+1, y[i + 1]);
+        }
+    }
+
+    /* ==========================================
+       MOSTRAR RESULTADOS FINALES
+       ========================================== */
+    printf("\n════════════════════════════════════════════════════════════════\n");
+    printf("  RESULTADOS FINALES - RK4 VARIANTE\n");
+    printf("════════════════════════════════════════════════════════════════\n");
+    printf("Paso h: %.10lf\n", h);
+    printf("Número de pasos: %d\n\n", n);
+    printf("  i      x_i           y_i (10 decimales)\n");
+    printf("────────────────────────────────────────────────────────────────\n");
+
+    for (int i = 0; i <= n; i++)
+    {
+        printf(" %3d   %.4lf      %.10lf\n", i, x[i], y[i]);
+    }
+    printf("════════════════════════════════════════════════════════════════\n");
+
+    /* ==========================================
+       VALORES ESPECÍFICOS SOLICITADOS
+       ========================================== */
+    printf("\n📊 VALORES ESPECÍFICOS (con 10 cifras decimales):\n");
+    
+    // Buscar y(1.5)
+    for (int i = 0; i <= n; i++) {
+        if (fabs(x[i] - 1.5) < 1e-6) {
+            printf("   y(1.5) = %.10lf\n", y[i]);
+            break;
+        }
+    }
+    
+    // Buscar y(2.0)
+    for (int i = 0; i <= n; i++) {
+        if (fabs(x[i] - 2.0) < 1e-6) {
+            printf("   y(2.0) = %.10lf\n", y[i]);
+            break;
+        }
+    }
+    
+    printf("\n");
+
+    /* ==========================================
+       GUARDAR RESULTADOS EN ARCHIVO
+       ========================================== */
+    FILE *archivo = fopen("rk4_variante_resultados.txt", "w");
+
+    if (archivo == NULL)
+    {
+        printf("\n✗ Error al crear el archivo.\n");
+    }
+    else
+    {
+        fprintf(archivo, "MÉTODO DE RUNGE-KUTTA 4TO ORDEN - VARIANTE\n");
+        fprintf(archivo, "==========================================\n");
+        fprintf(archivo, "EDO: dy/dx = y - x² + 1\n");
+        fprintf(archivo, "Condición inicial: y(%.4lf) = %.4lf\n", x_0, y_0);
+        fprintf(archivo, "Intervalo: [%.4lf, %.4lf]\n", x_0, x_f);
+        fprintf(archivo, "Paso h: %.10lf\n", h);
+        fprintf(archivo, "Número de pasos: %d\n\n", n);
+        
+        fprintf(archivo, "Fórmula utilizada:\n");
+        fprintf(archivo, "k₁ = f(xᵢ, yᵢ)\n");
+        fprintf(archivo, "k₂ = f(xᵢ + h/2, yᵢ + (h/4)k₁)\n");
+        fprintf(archivo, "k₃ = f(xᵢ + (2/3)h, yᵢ - (1/3)hk₁ + hk₂)\n");
+        fprintf(archivo, "k₄ = f(xᵢ + h, yᵢ + hk₁ - hk₂ + hk₃)\n");
+        fprintf(archivo, "yᵢ₊₁ = yᵢ + (h/8)(k₁ + 3k₂ + 3k₃ + k₄)\n\n");
+        
+        fprintf(archivo, "RESULTADOS PASO A PASO:\n");
+        fprintf(archivo, "%-5s %-12s %-20s\n", "i", "x_i", "y_i");
+        fprintf(archivo, "─────────────────────────────────────\n");
+
+        for (int i = 0; i <= n; i++)
+        {
+            fprintf(archivo, "%-5d %-12.4lf %-20.10lf\n", i, x[i], y[i]);
+        }
+        
+        fprintf(archivo, "\nVALORES ESPECÍFICOS:\n");
+        
+        // Buscar y(1.5)
+        for (int i = 0; i <= n; i++) {
+            if (fabs(x[i] - 1.5) < 1e-6) {
+                fprintf(archivo, "y(1.5) = %.10lf\n", y[i]);
+                break;
+            }
+        }
+        
+        // Buscar y(2.0)
+        for (int i = 0; i <= n; i++) {
+            if (fabs(x[i] - 2.0) < 1e-6) {
+                fprintf(archivo, "y(2.0) = %.10lf\n", y[i]);
+                break;
+            }
+        }
+
+        fclose(archivo);
+        printf("\n✓ Resultados guardados en 'rk4_variante_resultados.txt'\n");
     }
 
     /* ==========================================
