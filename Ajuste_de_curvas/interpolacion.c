@@ -194,6 +194,18 @@ void splinesLineales(double *x_puntos, double *y_puntos, int n);
  * @param n Número de puntos.
  */
 void splinesCubicas(double *x_puntos, double *y_puntos, int n);
+
+/**
+ * @brief Genera una nueva tabla de datos equiespaciados usando splines cúbicos.
+ * @details A partir de una tabla original de n_original puntos, calcula los splines
+ *          cúbicos y genera una nueva tabla de n_nuevos puntos equiespaciados en el
+ *          mismo intervalo [x_min, x_max]. Guarda la nueva tabla en un archivo.
+ * @param x_puntos Arreglo con las coordenadas x de los puntos originales.
+ * @param y_puntos Arreglo con las coordenadas y de los puntos originales.
+ * @param n_original Número de puntos en la tabla original.
+ */
+void generarTablaDesdeSplinesCubicos(double *x_puntos, double *y_puntos, int n_original);
+
 void funcional (double *x_puntos, double *y_puntos, int n);
 
 int main(void)
@@ -218,6 +230,7 @@ int main(void)
         printf("\nInterpolacion Segmentaria (Curvas Spline):\n");
         printf("  c) Splines Lineales\n");
         printf("  d) Splines Cubicas\n");
+        printf("  f) Generar nueva tabla desde Splines Cúbicos\n");
         printf("  e) Salir\n");
         printf("--------------------------------------------------\n");
         opcionMenu(&opcion);
@@ -272,6 +285,18 @@ int main(void)
             liberarPuntos(x_puntos, y_puntos);
             pausa();
             break;
+        case 'f':
+            system("clear");
+            printf("------------------------------------------------------------\n");
+            printf("  GENERAR NUEVA TABLA DESDE SPLINES CÚBICOS\n");
+            printf("------------------------------------------------------------\n");
+            leerPuntosDesdeArchivo(NODOS_TXT, &x_puntos, &y_puntos, &n);
+            pausa();
+            system("clear");
+            generarTablaDesdeSplinesCubicos(x_puntos, y_puntos, n);
+            liberarPuntos(x_puntos, y_puntos);
+            pausa();
+            break;
         case 'e':
             printf("\nSaliendo del programa...\n");
             stopDoWhile = 1;
@@ -315,6 +340,202 @@ void liberarPuntos(double *x_puntos, double *y_puntos)
 {
     free(x_puntos);
     free(y_puntos);
+}
+
+void generarTablaDesdeSplinesCubicos(double *x_puntos, double *y_puntos, int n_original)
+{
+    if (n_original < 2) {
+        printf("[ERROR] Se necesitan al menos 2 puntos para splines cúbicos.\n");
+        return;
+    }
+
+    int n_nuevos;
+    printf("\n----------------------------------------------------\n");
+    printf("Tabla original: %d puntos\n", n_original);
+    printf("----------------------------------------------------\n");
+    printf("¿Cuántos puntos equiespaciados desea generar?\n");
+    printf("(Puede ser MENOS, IGUAL o MÁS que la tabla original)\n");
+    printf("Ingrese cantidad: ");
+    scanf("%d", &n_nuevos);
+    while (getchar() != '\n');
+
+    if (n_nuevos < 2) {
+        printf("[ERROR] Debe generar al menos 2 puntos.\n");
+        return;
+    }
+
+    // Mostrar información sobre la operación
+    if (n_nuevos < n_original) {
+        printf("\n[INFO] Reduciendo tabla de %d a %d puntos usando splines cúbicos.\n", n_original, n_nuevos);
+    } else if (n_nuevos > n_original) {
+        printf("\n[INFO] Expandiendo tabla de %d a %d puntos usando splines cúbicos.\n", n_original, n_nuevos);
+    } else {
+        printf("\n[INFO] Regenerando tabla con %d puntos equiespaciados usando splines cúbicos.\n", n_nuevos);
+    }
+
+    // --- Paso 1: Calcular los coeficientes de los splines cúbicos ---
+    int num_splines = n_original - 1;
+    int num_incognitas = 4 * num_splines;
+
+    double **A = (double **)malloc(num_incognitas * sizeof(double *));
+    double *b = (double *)malloc(num_incognitas * sizeof(double));
+    double *solucion = (double *)malloc(num_incognitas * sizeof(double));
+
+    if (!A || !b || !solucion) {
+        printf("[ERROR] Falla de memoria al crear el sistema para splines cúbicos.\n");
+        free(A); free(b); free(solucion);
+        return;
+    }
+
+    for (int i = 0; i < num_incognitas; i++) {
+        A[i] = (double *)calloc(num_incognitas, sizeof(double));
+        if (!A[i]) {
+            printf("[ERROR] Falla de memoria en fila %d de la matriz A.\n", i);
+            for(int k=0; k<i; k++) free(A[k]);
+            free(A); free(b); free(solucion);
+            return;
+        }
+        b[i] = 0.0;
+    }
+
+    // Construir el sistema de ecuaciones (igual que en splinesCubicas)
+    int fila_actual = 0;
+
+    // Condición 1: Cada spline pasa por sus puntos
+    for (int k = 0; k < num_splines; k++) {
+        A[fila_actual][4*k + 0] = pow(x_puntos[k], 3);
+        A[fila_actual][4*k + 1] = pow(x_puntos[k], 2);
+        A[fila_actual][4*k + 2] = x_puntos[k];
+        A[fila_actual][4*k + 3] = 1;
+        b[fila_actual] = y_puntos[k];
+        fila_actual++;
+
+        A[fila_actual][4*k + 0] = pow(x_puntos[k+1], 3);
+        A[fila_actual][4*k + 1] = pow(x_puntos[k+1], 2);
+        A[fila_actual][4*k + 2] = x_puntos[k+1];
+        A[fila_actual][4*k + 3] = 1;
+        b[fila_actual] = y_puntos[k+1];
+        fila_actual++;
+    }
+
+    // Condición 2: Continuidad de primera derivada
+    for (int k = 0; k < num_splines - 1; k++) {
+        A[fila_actual][4*k + 0] = 3 * pow(x_puntos[k+1], 2);
+        A[fila_actual][4*k + 1] = 2 * x_puntos[k+1];
+        A[fila_actual][4*k + 2] = 1;
+        A[fila_actual][4*(k+1) + 0] = -3 * pow(x_puntos[k+1], 2);
+        A[fila_actual][4*(k+1) + 1] = -2 * x_puntos[k+1];
+        A[fila_actual][4*(k+1) + 2] = -1;
+        b[fila_actual] = 0.0;
+        fila_actual++;
+    }
+
+    // Condición 3: Continuidad de segunda derivada
+    for (int k = 0; k < num_splines - 1; k++) {
+        A[fila_actual][4*k + 0] = 6 * x_puntos[k+1];
+        A[fila_actual][4*k + 1] = 2;
+        A[fila_actual][4*(k+1) + 0] = -6 * x_puntos[k+1];
+        A[fila_actual][4*(k+1) + 1] = -2;
+        b[fila_actual] = 0.0;
+        fila_actual++;
+    }
+
+    // Condición 4: Frontera natural (segunda derivada nula en extremos)
+    A[fila_actual][0] = 6 * x_puntos[0];
+    A[fila_actual][1] = 2;
+    b[fila_actual] = 0.0;
+    fila_actual++;
+
+    A[fila_actual][4*(num_splines-1) + 0] = 6 * x_puntos[n_original-1];
+    A[fila_actual][4*(num_splines-1) + 1] = 2;
+    b[fila_actual] = 0.0;
+
+    // Resolver el sistema
+    printf("\nCalculando coeficientes de los splines cúbicos...\n");
+    gaussPivot(A, b, num_incognitas, solucion);
+
+    // --- Paso 2: Generar los nuevos puntos equiespaciados ---
+    double x_min = x_puntos[0];
+    double x_max = x_puntos[n_original - 1];
+    double paso = (x_max - x_min) / (n_nuevos - 1);
+
+    double *x_nuevos = (double *)malloc(n_nuevos * sizeof(double));
+    double *y_nuevos = (double *)malloc(n_nuevos * sizeof(double));
+
+    if (!x_nuevos || !y_nuevos) {
+        printf("[ERROR] Falla de memoria al crear arrays para nueva tabla.\n");
+        free(x_nuevos); free(y_nuevos);
+        for (int i = 0; i < num_incognitas; i++) free(A[i]);
+        free(A); free(b); free(solucion);
+        return;
+    }
+
+    printf("\nGenerando %d puntos equiespaciados en [%.4f, %.4f]...\n", n_nuevos, x_min, x_max);
+    printf("\n%-15s %-15s\n", "x", "y (spline)");
+    printf("----------------------------------------\n");
+
+    for (int i = 0; i < n_nuevos; i++) {
+        // Calcular el valor x equiespaciado
+        x_nuevos[i] = x_min + i * paso;
+
+        // Encontrar el tramo (k) que contiene este x
+        int k = 0;
+        for (int j = 0; j < num_splines; j++) {
+            if (x_nuevos[i] >= x_puntos[j] && x_nuevos[i] <= x_puntos[j+1]) {
+                k = j;
+                break;
+            }
+        }
+        // Si está en el último punto exacto, usar el último spline
+        if (fabs(x_nuevos[i] - x_max) < 1e-9) {
+            k = num_splines - 1;
+        }
+
+        // Evaluar el spline S_k(x) en este punto
+        double a_k = solucion[4*k + 0];
+        double b_k = solucion[4*k + 1];
+        double c_k = solucion[4*k + 2];
+        double d_k = solucion[4*k + 3];
+        
+        y_nuevos[i] = a_k * pow(x_nuevos[i], 3) + b_k * pow(x_nuevos[i], 2) + c_k * x_nuevos[i] + d_k;
+
+        printf("%-15.4f %-15.4f\n", x_nuevos[i], y_nuevos[i]);
+    }
+    printf("----------------------------------------\n");
+
+    // --- Paso 3: Guardar la nueva tabla en un archivo ---
+    char nombre_archivo[256];
+    printf("\nIngrese el nombre del archivo para guardar la nueva tabla (ej: nueva_tabla.txt): ");
+    scanf("%s", nombre_archivo);
+    while (getchar() != '\n');
+
+    FILE *archivo = fopen(nombre_archivo, "w");
+    if (!archivo) {
+        printf("[ERROR] No se pudo crear el archivo %s\n", nombre_archivo);
+    } else {
+        for (int i = 0; i < n_nuevos; i++) {
+            fprintf(archivo, "%.4f %.4f\n", x_nuevos[i], y_nuevos[i]);
+        }
+        fclose(archivo);
+        printf("\n╔════════════════════════════════════════════════════╗\n");
+        printf("║              OPERACIÓN EXITOSA                     ║\n");
+        printf("╠════════════════════════════════════════════════════╣\n");
+        printf("║  Tabla original:  %3d puntos                      ║\n", n_original);
+        printf("║  Tabla generada:  %3d puntos equiespaciados       ║\n", n_nuevos);
+        printf("║  Intervalo:       [%.4f, %.4f]                ║\n", x_min, x_max);
+        printf("║  Archivo:         %-28s ║\n", nombre_archivo);
+        printf("╚════════════════════════════════════════════════════╝\n");
+    }
+
+    // --- Paso 4: Liberar memoria ---
+    free(x_nuevos);
+    free(y_nuevos);
+    for (int i = 0; i < num_incognitas; i++) {
+        free(A[i]);
+    }
+    free(A);
+    free(b);
+    free(solucion);
 }
 
 
