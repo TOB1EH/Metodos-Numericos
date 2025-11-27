@@ -49,8 +49,11 @@ def load_data(file_path):
 # --- Definir la solución exacta para comparación ---
 # Problema: dy/dx = (x·e^(x²))/y
 # Solución exacta: y(x) = e^(x²/2)
+
 x_exact = np.linspace(0, 1, 200)
-y_exact = np.sqrt(np.exp(x_exact * x_exact))  # e^(x²/2) = √(e^(x²))
+
+# y_exact = np.sqrt(np.exp(x_exact * x_exact))  # e^(x²/2) = √(e^(x²))
+y_exact = (1 + (x_exact**2))**2
 
 # --- Definir métodos disponibles para graficar ---
 # Formato: "Nombre en leyenda": ("archivo.txt", "color", "marcador")
