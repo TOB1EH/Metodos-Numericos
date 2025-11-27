@@ -493,11 +493,28 @@ void trapecioCompuesto ()
             scanf("%lf", &a);
             printf("Inserte el limite superior b: ");
             scanf("%lf", &b);
-            printf("Ingrese el numero de subintervalos: ");
-            scanf("%d", &n);
-
-            /* Calcular h */
-            h = (b - a) / n;
+            
+            /* Selección entre n o h */
+            char opcion_dato;
+            printf("\n¿Qué dato desea ingresar?\n");
+            printf("  a) Número de subintervalos (n)\n");
+            printf("  b) Tamaño del paso (h)\n");
+            printf("Opción: ");
+            scanf(" %c", &opcion_dato);
+            opcion_dato = tolower(opcion_dato);
+            
+            if (opcion_dato == 'a') {
+                printf("  n = ");
+                scanf("%d", &n);
+                h = (b - a) / n;
+                printf("  → Tamaño del paso calculado: h = %.6lf\n", h);
+            } else if (opcion_dato == 'b') {
+                printf("  h = ");
+                scanf("%lf", &h);
+                n = (int)((b - a) / h);
+                h = (b - a) / n;  // Recalcular para exactitud
+                printf("  → Número de subintervalos calculado: n = %d\n", n);
+            }
 
             /* Regla del Trapecio Compuesta:
              * I ≈ (h/2) * [f(a) + 2·Σf(xᵢ) + f(b)]
@@ -599,7 +616,7 @@ void trapecioCompuesto ()
             double *solution = NULL; // Vector solución
 
             printf("Implementacion usando una tabla de datos...\n");
-            getNodesFromFile("nodos.txt", &x_values, &y_values, &n);
+            getNodesFromFile("derivadas_optima_func.txt", &x_values, &y_values, &n);
 
             /* Mostrar los nodos en formato de tabla */
             mostrarNodosEnTabla(x_values, y_values, n);
@@ -1072,17 +1089,39 @@ void simpsonCompuesto ()
             printf("Inserte el limite superior b: ");
             scanf("%lf", &b);
 
-            do
-            {
-                printf("Ingrese el numero de subintervalos (debe ser PAR): ");
-                scanf("%d", &n);
+            /* Selección entre n o h */
+            char opcion_dato;
+            printf("\n¿Qué dato desea ingresar?\n");
+            printf("  a) Número de subintervalos (n)\n");
+            printf("  b) Tamaño del paso (h)\n");
+            printf("Opción: ");
+            scanf(" %c", &opcion_dato);
+            opcion_dato = tolower(opcion_dato);
+            
+            if (opcion_dato == 'a') {
+                do {
+                    printf("  n (debe ser PAR) = ");
+                    scanf("%d", &n);
+                    if (n % 2 != 0) {
+                        printf("  ⚠ Error: El número debe ser par. Intente de nuevo.\n");
+                    }
+                } while (n % 2 != 0);
+                h = (b - a) / n;
+                printf("  → Tamaño del paso calculado: h = %.6lf\n", h);
+            } else if (opcion_dato == 'b') {
+                printf("  h = ");
+                scanf("%lf", &h);
+                n = (int)((b - a) / h);
+                
+                /* Simpson REQUIERE n PAR: ajustar si es necesario */
                 if (n % 2 != 0) {
-                    printf("Error: El número debe ser par. Intente de nuevo.\n");
+                    n += 1;  // Hacer n par
+                    printf("  ⚠ Nota: n se ajustó a %d (debe ser par para Simpson)\n", n);
                 }
-            } while (n % 2 != 0);
-
-            /* Calcular h */
-            h = (b - a) / n;
+                h = (b - a) / n;  // Recalcular para exactitud
+                printf("  → Número de subintervalos calculado: n = %d\n", n);
+                printf("  → Tamaño del paso recalculado: h = %.6lf\n", h);
+            }
 
             /* Regla de Simpson 1/3 compuesta:
              * I ≈ (h/3) * [f(x₀) + 4·f(x₁) + 2·f(x₂) + 4·f(x₃) + 2·f(x₄) + ... + 4·f(xₙ₋₁) + f(xₙ)]
