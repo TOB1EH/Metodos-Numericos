@@ -122,7 +122,8 @@ int main(void)
 double f(double x)
 {
     // return (2.0*x + log(x) - sin(3.0*x));
-    return (log(pow(x, 2) + 1) - sin(x));
+    // return (log(pow(x, 2) + 1) - sin(x));
+    return (sqrt(1 + (x * x)));
 }
 
 /**
@@ -205,6 +206,7 @@ void diferenciacionAdelanteFunc()
     double *x = NULL; /* Puntos x_i */
     double *f_p = NULL; /* Derivadas f'(x_i) */
     FILE *archivo = NULL; /* Archivo de salida */
+    char opcion_dato;
     
     printf("\n╔════════════════════════════════════════════╗\n");
     printf("║  DIFERENCIACIÓN HACIA ADELANTE (Función)   ║\n");
@@ -215,10 +217,35 @@ void diferenciacionAdelanteFunc()
     scanf("%lf", &a);
     printf("  b = ");
     scanf("%lf", &b);
-    printf("Ingrese el número de subintervalos n: ");
-    scanf("%d", &n);
     
-    h = (b - a) / n;
+    /* Preguntar qué dato se conoce */
+    printf("\n¿Qué dato desea ingresar?\n");
+    printf("  a) Número de subintervalos (n)\n");
+    printf("  b) Tamaño del paso (h)\n");
+    printf("Seleccione opción: ");
+    scanf(" %c", &opcion_dato);
+    opcion_dato = tolower(opcion_dato);
+    
+    if (opcion_dato == 'a') {
+        /* Ingresar n y calcular h */
+        printf("Ingrese el número de subintervalos n: ");
+        scanf("%d", &n);
+        h = (b - a) / n;
+        printf("→ Tamaño del paso calculado: h = %.6lf\n", h);
+    } else if (opcion_dato == 'b') {
+        /* Ingresar h y calcular n */
+        printf("Ingrese el tamaño del paso h: ");
+        scanf("%lf", &h);
+        n = (int)((b - a) / h);
+        h = (b - a) / n; // Recalcular h para que sea exacto
+        printf("→ Número de subintervalos calculado: n = %d\n", n);
+        printf("→ Tamaño del paso ajustado: h = %.6lf\n", h);
+    } else {
+        printf("Opción no válida. Usando n por defecto.\n");
+        printf("Ingrese el número de subintervalos n: ");
+        scanf("%d", &n);
+        h = (b - a) / n;
+    }
     
     x = (double *)malloc((n + 1) * sizeof(double));
     f_p = (double *)malloc((n + 1) * sizeof(double));
@@ -375,6 +402,7 @@ void diferenciacionAtrasFunc()
     double *x = NULL; /* Puntos x_i */
     double *f_p = NULL; /* Derivadas f'(x_i) */
     FILE *archivo = NULL; /* Archivo de salida */
+    char opcion_dato;
     
     printf("\n╔════════════════════════════════════════════╗\n");
     printf("║  DIFERENCIACIÓN HACIA ATRÁS (Función)      ║\n");
@@ -385,10 +413,35 @@ void diferenciacionAtrasFunc()
     scanf("%lf", &a);
     printf("  b = ");
     scanf("%lf", &b);
-    printf("Número de subintervalos n: ");
-    scanf("%d", &n);
     
-    h = (b - a) / n;
+    /* Preguntar qué dato se conoce */
+    printf("\n¿Qué dato desea ingresar?\n");
+    printf("  a) Número de subintervalos (n)\n");
+    printf("  b) Tamaño del paso (h)\n");
+    printf("Seleccione opción: ");
+    scanf(" %c", &opcion_dato);
+    opcion_dato = tolower(opcion_dato);
+    
+    if (opcion_dato == 'a') {
+        /* Ingresar n y calcular h */
+        printf("Número de subintervalos n: ");
+        scanf("%d", &n);
+        h = (b - a) / n;
+        printf("→ Tamaño del paso calculado: h = %.6lf\n", h);
+    } else if (opcion_dato == 'b') {
+        /* Ingresar h y calcular n */
+        printf("Tamaño del paso h: ");
+        scanf("%lf", &h);
+        n = (int)((b - a) / h);
+        h = (b - a) / n; // Recalcular h para que sea exacto
+        printf("→ Número de subintervalos calculado: n = %d\n", n);
+        printf("→ Tamaño del paso ajustado: h = %.6lf\n", h);
+    } else {
+        printf("Opción no válida. Usando n por defecto.\n");
+        printf("Número de subintervalos n: ");
+        scanf("%d", &n);
+        h = (b - a) / n;
+    }
     
     x = (double *)malloc((n + 1) * sizeof(double));
     f_p = (double *)malloc((n + 1) * sizeof(double));
@@ -552,6 +605,7 @@ void diferenciacionCentradaFunc()
     double *x = NULL;
     double *f_p = NULL;
     FILE *archivo = NULL;
+    char opcion_dato;
     
     printf("\n╔════════════════════════════════════════════╗\n");
     printf("║  DIFERENCIACIÓN CENTRADA (Función)         ║\n");
@@ -562,10 +616,35 @@ void diferenciacionCentradaFunc()
     scanf("%lf", &a);
     printf("  b = ");
     scanf("%lf", &b);
-    printf("Número de subintervalos n: ");
-    scanf("%d", &n);
     
-    h = (b - a) / n;
+    /* Preguntar qué dato se conoce */
+    printf("\n¿Qué dato desea ingresar?\n");
+    printf("  a) Número de subintervalos (n)\n");
+    printf("  b) Tamaño del paso (h)\n");
+    printf("Seleccione opción: ");
+    scanf(" %c", &opcion_dato);
+    opcion_dato = tolower(opcion_dato);
+    
+    if (opcion_dato == 'a') {
+        /* Ingresar n y calcular h */
+        printf("Número de subintervalos n: ");
+        scanf("%d", &n);
+        h = (b - a) / n;
+        printf("→ Tamaño del paso calculado: h = %.6lf\n", h);
+    } else if (opcion_dato == 'b') {
+        /* Ingresar h y calcular n */
+        printf("Tamaño del paso h: ");
+        scanf("%lf", &h);
+        n = (int)((b - a) / h);
+        h = (b - a) / n; // Recalcular h para que sea exacto
+        printf("→ Número de subintervalos calculado: n = %d\n", n);
+        printf("→ Tamaño del paso ajustado: h = %.6lf\n", h);
+    } else {
+        printf("Opción no válida. Usando n por defecto.\n");
+        printf("Número de subintervalos n: ");
+        scanf("%d", &n);
+        h = (b - a) / n;
+    }
     
     x = (double *)malloc((n + 1) * sizeof(double));
     f_p = (double *)malloc((n + 1) * sizeof(double));
@@ -758,6 +837,7 @@ void diferenciacionOptimaFunc()
     double *x = NULL;
     double *f_p = NULL;
     FILE *archivo = NULL;
+    char opcion_dato;
     
     printf("\n╔════════════════════════════════════════════╗\n");
     printf("║  DIFERENCIACIÓN ÓPTIMA - Híbrida (Función) ║\n");
@@ -772,16 +852,41 @@ void diferenciacionOptimaFunc()
     scanf("%lf", &a);
     printf("  b = ");
     scanf("%lf", &b);
-    printf("Número de subintervalos n: ");
-    scanf("%d", &n);
+    
+    /* Preguntar qué dato se conoce */
+    printf("\n¿Qué dato desea ingresar?\n");
+    printf("  a) Número de subintervalos (n)\n");
+    printf("  b) Tamaño del paso (h)\n");
+    printf("Seleccione opción: ");
+    scanf(" %c", &opcion_dato);
+    opcion_dato = tolower(opcion_dato);
+    
+    if (opcion_dato == 'a') {
+        /* Ingresar n y calcular h */
+        printf("Número de subintervalos n: ");
+        scanf("%d", &n);
+        h = (b - a) / n;
+        printf("→ Tamaño del paso calculado: h = %.6lf\n", h);
+    } else if (opcion_dato == 'b') {
+        /* Ingresar h y calcular n */
+        printf("Tamaño del paso h: ");
+        scanf("%lf", &h);
+        n = (int)((b - a) / h);
+        h = (b - a) / n; // Recalcular h para que sea exacto
+        printf("→ Número de subintervalos calculado: n = %d\n", n);
+        printf("→ Tamaño del paso ajustado: h = %.6lf\n", h);
+    } else {
+        printf("Opción no válida. Usando n por defecto.\n");
+        printf("Número de subintervalos n: ");
+        scanf("%d", &n);
+        h = (b - a) / n;
+    }
     
     if (n < 1)
     {
         printf("Error: n debe ser al menos 1.\n");
         return;
     }
-    
-    h = (b - a) / n;
     
     x = (double *)malloc((n + 1) * sizeof(double));
     f_p = (double *)malloc((n + 1) * sizeof(double));
