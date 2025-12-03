@@ -1,0 +1,11 @@
+El problema es la codificación de caracteres. PowerShell no está mostrando correctamente los caracteres UTF-8 o caracteres especiales del menú.
+
+Solución: Cambia la codificación de PowerShell
+Ejecuta este comando antes de correr tu programa:
+
+chcp 65001
+./MetodosDiferencacion.exe
+
+O ejecuta ambos comandos juntos:
+
+chcp 65001; ./MetodosDiferencacion.exe
