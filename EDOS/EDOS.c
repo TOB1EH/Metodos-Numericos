@@ -303,7 +303,9 @@ int main(void)
 double f(double x, double y)
 {
     // Problema n°3: dy/dx = y - x² + 1
-    return (y - x * x + 1.0);
+    // return (y - x * x + 1.0);
+
+    return (y * (4 * y - x * x));
 }
 
 /**
@@ -344,7 +346,8 @@ double f(double x, double y)
  */
 double solucionExacta(double x, double x_0, double y_0)
 {
-    return y_0 * exp(-x * x + x_0 * x_0);
+    // return y_0 * exp(-x * x + x_0 * x_0);
+    return (y_0 * (4 * y_0 - x * x));
 }
 
 /**
@@ -522,8 +525,8 @@ void euler ()
     {
         // Escribir encabezado
         fprintf(archivo, "# Resultados del Método de Euler con Análisis de Error\n");
-        fprintf(archivo, "# EDO: dy/dx = -2xy\n");
-        fprintf(archivo, "# Solución exacta: y(x) = y0 * exp(-x^2 + x0^2)\n");
+        // fprintf(archivo, "# EDO: dy/dx = -2xy\n");
+        // fprintf(archivo, "# Solución exacta: y(x) = y0 * exp(-x^2 + x0^2)\n");
         fprintf(archivo, "# Condición inicial: y(%.6lf) = %.6lf\n", x_0, y_0);
         fprintf(archivo, "# Intervalo: [%.6lf, %.6lf]\n", x_0, x_f);
         fprintf(archivo, "# Paso h: %.6lf\n", h);

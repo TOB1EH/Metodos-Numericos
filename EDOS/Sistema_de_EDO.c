@@ -132,10 +132,40 @@ int main(void)
     scanf("%lf", &y1_0);
     printf("Ingrese el valor inicial de y2 (y2_0): ");
     scanf("%lf", &y2_0);
-    printf("Ingrese el número de pasos (n): ");
-    scanf("%d", &n);
-
-    h = (x_f - x_0) / n; /* Calcular el tamaño del paso */
+    
+    /* ==========================================
+       SELECCIÓN DE MÉTODO DE ENTRADA (h o n)
+       ========================================== */
+    char opcion_entrada;
+    printf("\n¿Cómo desea especificar el paso de integración?\n");
+    printf("  a) Ingresar el número de pasos (n)\n");
+    printf("  b) Ingresar el tamaño del paso (h)\n");
+    printf("Ingrese su opción: ");
+    scanf(" %c", &opcion_entrada);
+    
+    if (opcion_entrada == 'a' || opcion_entrada == 'A') {
+        /* Usuario ingresa n, calculamos h */
+        printf("Ingrese el número de pasos (n): ");
+        scanf("%d", &n);
+        h = (x_f - x_0) / n; /* Calcular el tamaño del paso */
+        printf("→ Tamaño del paso calculado: h = %.6lf\n", h);
+    } else if (opcion_entrada == 'b' || opcion_entrada == 'B') {
+        /* Usuario ingresa h, calculamos n */
+        printf("Ingrese el tamaño del paso (h): ");
+        scanf("%lf", &h);
+        n = (int)((x_f - x_0) / h); /* Calcular el número de pasos */
+        
+        /* Ajustar h para que sea exacto */
+        h = (x_f - x_0) / n;
+        printf("→ Número de pasos calculado: n = %d\n", n);
+        printf("→ Tamaño del paso ajustado: h = %.6lf\n", h);
+    } else {
+        printf("Opción no válida. Usando opción por defecto: ingresar n\n");
+        printf("Ingrese el número de pasos (n): ");
+        scanf("%d", &n);
+        h = (x_f - x_0) / n; /* Calcular el tamaño del paso */
+        printf("→ Tamaño del paso calculado: h = %.6lf\n", h);
+    }
 
     /* ==========================================
        RESERVAR MEMORIA DINÁMICA
@@ -162,7 +192,7 @@ int main(void)
         printf("b) Método de Runge-Kutta 4to Orden (RK4)\n");
         printf("c) Salir\n");
         printf("Ingrese su opción: ");
-        scanf(" %c", &opcion);
+        scanf("%c", &opcion);
         switch (opcion)
         {
         case 'a':
@@ -187,6 +217,9 @@ int main(void)
                 /* Actualizar y2 usando f2 */
                 y2[i + 1] = y2[i] + h * f2(x[i], y1[i], y2[i]);
             }
+
+            printf("\n✓ Método de Euler completado exitosamente.\n");
+            opcion = 'c';  /* Salir después de completar Euler */
             break;
         case 'b':
             /* ==========================================
@@ -230,6 +263,9 @@ int main(void)
                 y1[i + 1] = y1[i] + (h / 6.0) * (k_11 + 2.0 * k_21 + 2.0 * k_31 + k_41);
                 y2[i + 1] = y2[i] + (h / 6.0) * (k_12 + 2.0 * k_22 + 2.0 * k_32 + k_42);
             }
+            
+            printf("\n✓ Método de Runge-Kutta 4 completado exitosamente.\n");
+            opcion = 'c';  /* Salir después de completar RK4 */
             break;
             
         default:
@@ -374,8 +410,12 @@ int main(void)
  */
 double f1(double x, double y1, double y2)
 {
-    (void)y1;  /* Suprimir warning de parámetro no usado */
-    return 3 * x + y2;
+    // (void)y1;  /* Suprimir warning de parámetro no usado */
+    // return 3 * x + y2;
+
+    (void)x;   // No se usa x
+    (void)y1;  // No se usa y1
+    return y2;  // dy₁/dx = y₂
 }
 
 /**
@@ -406,6 +446,9 @@ double f1(double x, double y1, double y2)
  */
 double f2(double x, double y1, double y2)
 {
-    (void)y2;  /* Suprimir warning de parámetro no usado */
-    return pow(x, 2) - y1 - 1;
+    // (void)y2;  /* Suprimir warning de parámetro no usado */
+    // return pow(x, 2) - y1 - 1;
+
+    (void)x;  // No se usa x
+    return -2.0 * y2 - 5.0 * y1;  // dy₂/dx = -2y₂ - 5y₁
 }
