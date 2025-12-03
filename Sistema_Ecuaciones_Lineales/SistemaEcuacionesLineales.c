@@ -181,7 +181,7 @@ int main(int argc, char const *argv[])
         case 'b':
             system("clear");
             printf("--------------------------------------------------\n");
-            printf("         MÉTODO DE JACOBI (No implementado)\n");
+            printf("         MÉTODO DE JACOBI \n");
             printf("--------------------------------------------------\n");
             confirmarMatriz(&A, &b, &n);
             pausa();
@@ -193,7 +193,7 @@ int main(int argc, char const *argv[])
         case 'c':
             system("clear");
             printf("--------------------------------------------------\n");
-            printf("         MÉTODO DE GAUSS-SEIDEL (No implementado)\n");
+            printf("         MÉTODO DE GAUSS-SEIDEL\n");
             printf("--------------------------------------------------\n");
             confirmarMatriz(&A, &b, &n);
             pausa();
