@@ -202,7 +202,8 @@ double f(double x)
     // return (x * x - sin(sqrt(x)));
     //return log(x) + exp(sin(x)) - x;
     // return (log(pow(x, 2) + 1) - sin(x));
-    return (((2 * x) / (pow(x, 2) + 1)) - cos(x));
+    // return (((2 * x) / (pow(x, 2) + 1)) - cos(x));
+    return exp(sqrt(1+x)) * log(1 + 2*x*x);
 }
 
 /**
@@ -1391,6 +1392,17 @@ void simpsonCompuesto ()
  *   - Muestra resultado después de cada cálculo
  *   - Ingresa 0 para salir
  */
+/**
+ * ============================================================================
+ * FUNCIÓN: gaussLegendre
+ * ============================================================================
+ * Implementa la Cuadratura de Gauss-Legendre para integración numérica
+ * 
+ * MENÚ CON 3 OPCIONES:
+ *   a) Gauss-Legendre con función
+ *   b) Gauss-Legendre con tabla de datos (usando splines cúbicas)
+ *   c) Volver al menú principal
+ */
 void gaussLegendre ()
 {
     /* Limites de integracion */
@@ -1401,252 +1413,271 @@ void gaussLegendre ()
 
     int puntos = 0; // Numero de puntos de Gauss
 
+    /* Opcion para el menu */
+    char opcion;
+
     /* Pesos y nodos predefinidos para hasta 6 puntos */
-    /* ESTRUCTURA DE LOS ARREGLOS:
-     * Para n puntos, el arreglo tiene 2n elementos:
-     *   - Primeros n elementos: PESOS (w₀, w₁, ..., wₙ₋₁)
-     *   - Siguientes n elementos: NODOS (t₀, t₁, ..., tₙ₋₁)
-     * 
-     * NOTA: Los nodos están en el intervalo [-1, 1]
-     *       Se transformarán al intervalo [a, b] con:
-     *       x = ((b-a)/2)·t + (a+b)/2
-     */
     double two[] = {1, 1, -0.577350269, 0.577350269};
-
     double three[] = {0.5555556, 0.8888889, 0.5555556, -0.774596669, 0.0, 0.774596669};
-
     double four[] = {0.3478548, 0.6521452, 0.6521452, 0.3478548, -0.861136312, -0.339981044, 0.339981044, 0.861136312};
-
     double five[] = {0.2369269, 0.4786287, 0.5688889, 0.4786287, 0.2369269, -0.906179846, -0.538469310, 0.0, 0.538469310, 0.906179846};
-
     double six[] = {0.1713245, 0.3607616, 0.4679139, 0.4679139, 0.3607616, 0.1713245, -0.932469514, -0.661209386, -0.238619186, 0.238619186, 0.661209386, 0.932469514};
-
-    printf("\n-----------------------------------------------\n");
-    printf("   FORMULA DE GAUSS-LAGRANGE CON MAS PUNTOS\n");
-    printf("-----------------------------------------------\n");
-    printf("Inserte los limites de integracion:\n");
-    printf("Inserte el limite inferior a: ");
-    scanf("%lf", &a);
-    printf("Inserte el limite superior b: ");
-    scanf("%lf", &b);
 
     do
     {
-        /* Calcular I */
-        printf("\nIngresar el numero de puntos de Gauss (entre 2 y 6), o 0 para salir: ");
-        scanf("%d", &puntos);
-        
-        if (puntos == 0) {
-            printf("Saliendo de Gauss-Lagrange...\n");
-            break;
-        }
-        
-        switch (puntos)
-        {
-        case 2:
-            /* GAUSS-LEGENDRE con 2 PUNTOS
-             * 
-             * FÓRMULA: I ≈ (b-a)/2 · [w₀·f(x₀) + w₁·f(x₁)]
-             * 
-             * TRANSFORMACIÓN de nodos t ∈ [-1,1] → x ∈ [a,b]:
-             *   x = ((b-a)/2)·t + (a+b)/2
-             * 
-             * PRECISIÓN: Exacto para polinomios de grado ≤ 3
-             */
-            I = ((b - a) / 2.0) * (two[0] * f((b - a) / 2.0 * two[2] + (a + b) / 2.0) +
-                             two[1] * f((b - a) / 2.0 * two[3] + (a + b) / 2.0));
-            
-            printf("\n========================================\n");
-            printf("  RESULTADO - GAUSS-LEGENDRE (2 puntos)\n");
-            printf("========================================\n");
-            printf("Integral aproximada: %.10lf\n", I);
-            printf("Intervalo: [%.6lf, %.6lf]\n", a, b);
-            printf("Número de evaluaciones: 2\n");
-            printf("========================================\n");
-            
-            /* Cálculo de errores (opcional) */
-            char calcular_error;
-            printf("\n¿Desea calcular el error? (s/n): ");
-            getchar(); // Limpiar buffer
-            scanf("%c", &calcular_error);
-            
-            if (calcular_error == 's' || calcular_error == 'S') {
-                double valor_exacto;
-                printf("Ingrese el valor exacto de la integral: ");
-                scanf("%lf", &valor_exacto);
-                
-                double error_absoluto = fabs(valor_exacto - I);
-                double error_porcentual = fabs(error_absoluto / valor_exacto) * 100.0;
-                
-                printf("\n--- ANÁLISIS DE ERROR ---\n");
-                printf("Valor exacto:        %.10lf\n", valor_exacto);
-                printf("Valor aproximado:    %.10lf\n", I);
-                printf("Error absoluto:      %.10lf\n", error_absoluto);
-                printf("Error porcentual:    %.6lf%%\n", error_porcentual);
-                printf("-------------------------\n");
-            }
-            break;
-        case 3:
-            /* GAUSS-LEGENDRE con 3 PUNTOS
-             * 
-             * FÓRMULA: I ≈ (b-a)/2 · [w₀·f(x₀) + w₁·f(x₁) + w₂·f(x₂)]
-             * 
-             * NOTA: El punto central (x₁) está en t=0, que se mapea a (a+b)/2
-             * 
-             * PRECISIÓN: Exacto para polinomios de grado ≤ 5
-             */
-            I = ((b - a) / 2.0) * (three[0] * f((b - a) / 2.0 * three[3] + (a + b) / 2.0) +
-                             three[1] * f((b - a) / 2.0 * three[4] + (a + b) / 2.0) +
-                             three[2] * f((b - a) / 2.0 * three[5] + (a + b) / 2.0));
-            
-            printf("\n========================================\n");
-            printf("  RESULTADO - GAUSS-LEGENDRE (3 puntos)\n");
-            printf("========================================\n");
-            printf("Integral aproximada: %.10lf\n", I);
-            printf("Intervalo: [%.6lf, %.6lf]\n", a, b);
-            printf("Número de evaluaciones: 3\n");
-            printf("========================================\n");
-            
-            /* Cálculo de errores (opcional) */
-            char calcular_error_3;
-            printf("\n¿Desea calcular el error? (s/n): ");
-            getchar(); // Limpiar buffer
-            scanf("%c", &calcular_error_3);
-            
-            if (calcular_error_3 == 's' || calcular_error_3 == 'S') {
-                double valor_exacto;
-                printf("Ingrese el valor exacto de la integral: ");
-                scanf("%lf", &valor_exacto);
-                
-                double error_absoluto = fabs(valor_exacto - I);
-                double error_porcentual = fabs(error_absoluto / valor_exacto) * 100.0;
-                
-                printf("\n--- ANÁLISIS DE ERROR ---\n");
-                printf("Valor exacto:        %.10lf\n", valor_exacto);
-                printf("Valor aproximado:    %.10lf\n", I);
-                printf("Error absoluto:      %.10lf\n", error_absoluto);
-                printf("Error porcentual:    %.6lf%%\n", error_porcentual);
-                printf("-------------------------\n");
-            }
-            break;
-        case 4:
-            I = ((b - a) / 2.0) * (four[0] * f((b - a) / 2.0 * four[4] + (a + b) / 2.0) +
-                             four[1] * f((b - a) / 2.0 * four[5] + (a + b) / 2.0) +
-                             four[2] * f((b - a) / 2.0 * four[6] + (a + b) / 2.0) +
-                             four[3] * f((b - a) / 2.0 * four[7] + (a + b) / 2.0));
-            
-            printf("\n========================================\n");
-            printf("  RESULTADO - GAUSS-LEGENDRE (4 puntos)\n");
-            printf("========================================\n");
-            printf("Integral aproximada: %.10lf\n", I);
-            printf("Intervalo: [%.6lf, %.6lf]\n", a, b);
-            printf("Número de evaluaciones: 4\n");
-            printf("========================================\n");
-            
-            /* Cálculo de errores (opcional) */
-            char calcular_error_4;
-            printf("\n¿Desea calcular el error? (s/n): ");
-            getchar(); // Limpiar buffer
-            scanf("%c", &calcular_error_4);
-            
-            if (calcular_error_4 == 's' || calcular_error_4 == 'S') {
-                double valor_exacto;
-                printf("Ingrese el valor exacto de la integral: ");
-                scanf("%lf", &valor_exacto);
-                
-                double error_absoluto = fabs(valor_exacto - I);
-                double error_porcentual = fabs(error_absoluto / valor_exacto) * 100.0;
-                
-                printf("\n--- ANÁLISIS DE ERROR ---\n");
-                printf("Valor exacto:        %.10lf\n", valor_exacto);
-                printf("Valor aproximado:    %.10lf\n", I);
-                printf("Error absoluto:      %.10lf\n", error_absoluto);
-                printf("Error porcentual:    %.6lf%%\n", error_porcentual);
-                printf("-------------------------\n");
-            }
-            break;
-        case 5:
-            I = ((b - a) / 2.0) * (five[0] * f((b - a) / 2.0 * five[5] + (a + b) / 2.0) +
-                             five[1] * f((b - a) / 2.0 * five[6] + (a + b) / 2.0) +
-                             five[2] * f((b - a) / 2.0 * five[7] + (a + b) / 2.0) +
-                             five[3] * f((b - a) / 2.0 * five[8] + (a + b) / 2.0) +
-                             five[4] * f((b - a) / 2.0 * five[9] + (a + b) / 2.0));
-            
-            printf("\n========================================\n");
-            printf("  RESULTADO - GAUSS-LEGENDRE (5 puntos)\n");
-            printf("========================================\n");
-            printf("Integral aproximada: %.10lf\n", I);
-            printf("Intervalo: [%.6lf, %.6lf]\n", a, b);
-            printf("Número de evaluaciones: 5\n");
-            printf("========================================\n");
-            
-            /* Cálculo de errores (opcional) */
-            char calcular_error_5;
-            printf("\n¿Desea calcular el error? (s/n): ");
-            getchar(); // Limpiar buffer
-            scanf("%c", &calcular_error_5);
-            
-            if (calcular_error_5 == 's' || calcular_error_5 == 'S') {
-                double valor_exacto;
-                printf("Ingrese el valor exacto de la integral: ");
-                scanf("%lf", &valor_exacto);
-                
-                double error_absoluto = fabs(valor_exacto - I);
-                double error_porcentual = fabs(error_absoluto / valor_exacto) * 100.0;
-                
-                printf("\n--- ANÁLISIS DE ERROR ---\n");
-                printf("Valor exacto:        %.10lf\n", valor_exacto);
-                printf("Valor aproximado:    %.10lf\n", I);
-                printf("Error absoluto:      %.10lf\n", error_absoluto);
-                printf("Error porcentual:    %.6lf%%\n", error_porcentual);
-                printf("-------------------------\n");
-            }
-            break;
-        case 6:
-            I = ((b - a) / 2.0) * (six[0] * f((b - a) / 2.0 * six[6] + (a + b) / 2.0) +
-                             six[1] * f((b - a) / 2.0 * six[7] + (a + b) / 2.0) +
-                             six[2] * f((b - a) / 2.0 * six[8] + (a + b) / 2.0) +
-                             six[3] * f((b - a) / 2.0 * six[9] + (a + b) / 2.0) +
-                             six[4] * f((b - a) / 2.0 * six[10] + (a + b) / 2.0) +
-                             six[5] * f((b - a) / 2.0 * six[11] + (a + b) / 2.0));
-            
-            printf("\n========================================\n");
-            printf("  RESULTADO - GAUSS-LEGENDRE (6 puntos)\n");
-            printf("========================================\n");
-            printf("Integral aproximada: %.10lf\n", I);
-            printf("Intervalo: [%.6lf, %.6lf]\n", a, b);
-            printf("Número de evaluaciones: 6\n");
-            printf("========================================\n");
-            
-            /* Cálculo de errores (opcional) */
-            char calcular_error_6;
-            printf("\n¿Desea calcular el error? (s/n): ");
-            getchar(); // Limpiar buffer
-            scanf("%c", &calcular_error_6);
-            
-            if (calcular_error_6 == 's' || calcular_error_6 == 'S') {
-                double valor_exacto;
-                printf("Ingrese el valor exacto de la integral: ");
-                scanf("%lf", &valor_exacto);
-                
-                double error_absoluto = fabs(valor_exacto - I);
-                double error_porcentual = fabs(error_absoluto / valor_exacto) * 100.0;
-                
-                printf("\n--- ANÁLISIS DE ERROR ---\n");
-                printf("Valor exacto:        %.10lf\n", valor_exacto);
-                printf("Valor aproximado:    %.10lf\n", I);
-                printf("Error absoluto:      %.10lf\n", error_absoluto);
-                printf("Error porcentual:    %.6lf%%\n", error_porcentual);
-                printf("-------------------------\n");
-            }
-            break;
-        default:
-            printf("Número de puntos no soportado. Intente de nuevo.\n");
-            break;
-        }
-    } while (puntos != 0);
+        printf("\n-----------------------------------------------\n");
+        printf("   CUADRATURA DE GAUSS-LEGENDRE\n");
+        printf("-----------------------------------------------\n");
+        printf("¿Implementar usando una función o una tabla de datos?\n");
+        printf("Seleccione una opción:\n");
+        printf("  a) Usando una función\n");
+        printf("  b) Usando tabla de datos\n");
+        printf("  c) Volver atrás...\n");
+        opcionMenu(&opcion);
 
-    printf("\nPresione ENTER para continuar...");
-    getchar();
-    getchar();
+        switch (opcion)
+        {
+        case 'a':
+            /* ==========================================
+               OPCIÓN A: GAUSS-LEGENDRE con FUNCIÓN
+               ========================================== */
+            printf("\n>>> GAUSS-LEGENDRE CON FUNCIÓN <<<\n");
+            printf("Inserte los limites de integracion:\n");
+            printf("Inserte el limite inferior a: ");
+            scanf("%lf", &a);
+            printf("Inserte el limite superior b: ");
+            scanf("%lf", &b);
+
+            do
+            {
+                printf("\nIngresar el número de puntos de Gauss (entre 2 y 6), o 0 para volver: ");
+                scanf("%d", &puntos);
+                
+                if (puntos == 0) {
+                    printf("Volviendo al menú anterior...\n");
+                    break;
+                }
+                
+                switch (puntos)
+                {
+                case 2:
+                    I = ((b - a) / 2.0) * (two[0] * f((b - a) / 2.0 * two[2] + (a + b) / 2.0) +
+                                     two[1] * f((b - a) / 2.0 * two[3] + (a + b) / 2.0));
+                    break;
+                case 3:
+                    I = ((b - a) / 2.0) * (three[0] * f((b - a) / 2.0 * three[3] + (a + b) / 2.0) +
+                                     three[1] * f((b - a) / 2.0 * three[4] + (a + b) / 2.0) +
+                                     three[2] * f((b - a) / 2.0 * three[5] + (a + b) / 2.0));
+                    break;
+                case 4:
+                    I = ((b - a) / 2.0) * (four[0] * f((b - a) / 2.0 * four[4] + (a + b) / 2.0) +
+                                     four[1] * f((b - a) / 2.0 * four[5] + (a + b) / 2.0) +
+                                     four[2] * f((b - a) / 2.0 * four[6] + (a + b) / 2.0) +
+                                     four[3] * f((b - a) / 2.0 * four[7] + (a + b) / 2.0));
+                    break;
+                case 5:
+                    I = ((b - a) / 2.0) * (five[0] * f((b - a) / 2.0 * five[5] + (a + b) / 2.0) +
+                                     five[1] * f((b - a) / 2.0 * five[6] + (a + b) / 2.0) +
+                                     five[2] * f((b - a) / 2.0 * five[7] + (a + b) / 2.0) +
+                                     five[3] * f((b - a) / 2.0 * five[8] + (a + b) / 2.0) +
+                                     five[4] * f((b - a) / 2.0 * five[9] + (a + b) / 2.0));
+                    break;
+                case 6:
+                    I = ((b - a) / 2.0) * (six[0] * f((b - a) / 2.0 * six[6] + (a + b) / 2.0) +
+                                     six[1] * f((b - a) / 2.0 * six[7] + (a + b) / 2.0) +
+                                     six[2] * f((b - a) / 2.0 * six[8] + (a + b) / 2.0) +
+                                     six[3] * f((b - a) / 2.0 * six[9] + (a + b) / 2.0) +
+                                     six[4] * f((b - a) / 2.0 * six[10] + (a + b) / 2.0) +
+                                     six[5] * f((b - a) / 2.0 * six[11] + (a + b) / 2.0));
+                    break;
+                default:
+                    printf("Número de puntos no soportado. Intente de nuevo.\n");
+                    continue;
+                }
+                
+                if (puntos >= 2 && puntos <= 6) {
+                    printf("\n========================================\n");
+                    printf("  RESULTADO - GAUSS-LEGENDRE (%d puntos)\n", puntos);
+                    printf("========================================\n");
+                    printf("Integral aproximada: %.10lf\n", I);
+                    printf("Intervalo: [%.6lf, %.6lf]\n", a, b);
+                    printf("Número de evaluaciones: %d\n", puntos);
+                    printf("========================================\n");
+                    
+                    char calcular_error;
+                    printf("\n¿Desea calcular el error? (s/n): ");
+                    getchar();
+                    scanf("%c", &calcular_error);
+                    
+                    if (calcular_error == 's' || calcular_error == 'S') {
+                        double valor_exacto;
+                        printf("Ingrese el valor exacto de la integral: ");
+                        scanf("%lf", &valor_exacto);
+                        
+                        double error_absoluto = fabs(valor_exacto - I);
+                        double error_porcentual = fabs(error_absoluto / valor_exacto) * 100.0;
+                        
+                        printf("\n--- ANÁLISIS DE ERROR ---\n");
+                        printf("Valor exacto:        %.10lf\n", valor_exacto);
+                        printf("Valor aproximado:    %.10lf\n", I);
+                        printf("Error absoluto:      %.10lf\n", error_absoluto);
+                        printf("Error porcentual:    %.6lf%%\n", error_porcentual);
+                        printf("-------------------------\n");
+                    }
+                }
+            } while (puntos != 0);
+            
+            printf("\nPresione ENTER para continuar...");
+            getchar();
+            getchar();
+            break;
+
+        case 'b':
+            /* ==========================================
+               OPCIÓN B: GAUSS-LEGENDRE con TABLA DE DATOS
+               ==========================================
+               PROCESO DE 3 PASOS (igual que Simpson y Trapecio):
+               
+               PASO 1: Construir splines cúbicas → S(x)
+               PASO 2: Evaluar S(x) en nodos de Gauss-Legendre
+               PASO 3: Aplicar fórmula: I ≈ (b-a)/2 · Σ wᵢ·S(xᵢ)
+               
+               DIFERENCIA CLAVE:
+               - Simpson/Trapecio: nodos EQUIESPACIADOS
+               - Gauss: nodos en POSICIONES ESPECÍFICAS (raíces de Legendre)
+               ========================================== */
+            
+            /* Variables para tabla de datos */
+            double *x_values = NULL;
+            double *y_values = NULL;
+            int n = 0;
+            
+            double *A = NULL;
+            double *b_vec = NULL;
+            double *solution = NULL;
+
+            printf("\n>>> GAUSS-LEGENDRE CON TABLA DE DATOS <<<\n");
+            printf("Implementación usando tabla de datos...\n");
+            getNodesFromFile("nodos.txt", &x_values, &y_values, &n);
+            
+            mostrarNodosEnTabla(x_values, y_values, n);
+
+            /* PASO 1: Construir splines cúbicas */
+            printf("\n--- PASO 1: Construyendo splines cúbicas ---\n");
+            A = (double*)malloc(n * n * sizeof(double));
+            b_vec = (double*)malloc(n * sizeof(double));
+            solution = (double*)malloc(n * sizeof(double));
+
+            construirSistemaSplinesCubicas(x_values, y_values, n, A, b_vec);
+            eliminacionGaussiana(A, b_vec, solution, n);
+            
+            printf("Splines cúbicas calculadas.\n");
+            printf("Segundas derivadas (M_i) en los nodos:\n");
+            for (int i = 0; i < n; i++) {
+                printf("  M[%d] = %.6lf\n", i, solution[i]);
+            }
+
+            /* PASO 2 y 3: Seleccionar número de puntos de Gauss */
+            printf("\n--- PASO 2: Selección de puntos de Gauss ---\n");
+            printf("¿Cuántos puntos de Gauss desea usar? (2-6): ");
+            scanf("%d", &puntos);
+
+            if (puntos < 2 || puntos > 6) {
+                printf("Número de puntos no válido.\n");
+                free(x_values); free(y_values);
+                free(A); free(b_vec); free(solution);
+                break;
+            }
+
+            a = x_values[0];
+            b = x_values[n-1];
+
+            /* Seleccionar array de pesos y nodos */
+            double *pesos, *nodos;
+            switch(puntos) {
+                case 2: pesos = two; nodos = &two[2]; break;
+                case 3: pesos = three; nodos = &three[3]; break;
+                case 4: pesos = four; nodos = &four[4]; break;
+                case 5: pesos = five; nodos = &five[5]; break;
+                case 6: pesos = six; nodos = &six[6]; break;
+            }
+
+            /* PASO 3: Evaluar spline en nodos de Gauss y aplicar fórmula */
+            printf("\n--- PASO 3: Integrando con Gauss-Legendre ---\n");
+            I = 0.0;
+            
+            printf("\nNodos de Gauss-Legendre transformados:\n");
+            printf("╔═══════╦═════════════════╦═════════════════╦═════════════════╗\n");
+            printf("║ Nodo  ║   x (en [a,b])  ║     S(x)        ║      Peso       ║\n");
+            printf("╠═══════╬═════════════════╬═════════════════╬═════════════════╣\n");
+            
+            for (int i = 0; i < puntos; i++) {
+                /* Transformar nodo de [-1,1] a [a,b] */
+                double x_gauss = (b-a)/2.0 * nodos[i] + (a+b)/2.0;
+                
+                /* Evaluar spline en el nodo de Gauss */
+                double y_gauss = evaluarSpline(x_gauss, x_values, y_values, solution, n);
+                
+                printf("║  %2d   ║   %13.6lf ║   %13.6lf ║   %13.6lf ║\n", 
+                       i+1, x_gauss, y_gauss, pesos[i]);
+                
+                /* Acumular: Σ wᵢ·S(xᵢ) */
+                I += pesos[i] * y_gauss;
+            }
+            
+            printf("╚═══════╩═════════════════╩═════════════════╩═════════════════╝\n");
+            
+            /* Multiplicar por (b-a)/2 */
+            I *= (b-a)/2.0;
+
+            printf("\n========================================\n");
+            printf("  RESULTADO - GAUSS-LEGENDRE (tabla)\n");
+            printf("========================================\n");
+            printf("Integral aproximada: %.10lf\n", I);
+            printf("Puntos de Gauss: %d\n", puntos);
+            printf("Intervalo: [%.6lf, %.6lf]\n", a, b);
+            printf("========================================\n");
+            
+            /* Cálculo de errores (opcional) */
+            {
+                char calcular_error;
+                printf("\n¿Desea calcular el error? (s/n): ");
+                getchar();
+                scanf("%c", &calcular_error);
+                
+                if (calcular_error == 's' || calcular_error == 'S') {
+                    double valor_exacto;
+                    printf("Ingrese el valor exacto de la integral: ");
+                    scanf("%lf", &valor_exacto);
+                    
+                    double error_absoluto = fabs(valor_exacto - I);
+                    double error_porcentual = fabs(error_absoluto / valor_exacto) * 100.0;
+                    
+                    printf("\n--- ANÁLISIS DE ERROR ---\n");
+                    printf("Valor exacto:        %.10lf\n", valor_exacto);
+                    printf("Valor aproximado:    %.10lf\n", I);
+                    printf("Error absoluto:      %.10lf\n", error_absoluto);
+                    printf("Error porcentual:    %.6lf%%\n", error_porcentual);
+                    printf("-------------------------\n");
+                }
+            }
+
+            /* Liberar memoria */
+            free(x_values); free(y_values);
+            free(A); free(b_vec); free(solution);
+
+            printf("\nPresione ENTER para continuar...");
+            getchar();
+            getchar();
+            break;
+
+        case 'c':
+            printf("Volviendo al menú principal...\n");
+            break;
+
+        default:
+            printf("Opción no válida. Intente de nuevo.\n");
+            break;
+        }
+    } while (opcion != 'c');
 }
