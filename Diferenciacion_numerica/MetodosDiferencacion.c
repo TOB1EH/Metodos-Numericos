@@ -123,7 +123,8 @@ double f(double x)
 {
     // return (2.0*x + log(x) - sin(3.0*x));
     // return (log(pow(x, 2) + 1) - sin(x));
-    return (sqrt(1 + (x * x)));
+    // return (sqrt(1 + (x * x)));
+    return exp(sqrt(1+x)) * log(1 + 2*x*x);
 }
 
 /**
