@@ -40,7 +40,6 @@ ehthumbs.db
 Thumbs.db
 
 # Archivos de IDE
-.vscode/
 .idea/
 *.swp
 *.swo
