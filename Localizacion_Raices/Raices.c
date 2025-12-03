@@ -238,7 +238,9 @@ double f(double x)
     // return sqrt(sin(sqrt(x)));
     // return (x * x - sin(sqrt(x)));
     //return log(x) + exp(sin(x)) - x;
-    return (2*x + log(x) - sin(3*x));
+    // return (2*x + log(x) - sin(3*x));
+    //  return (exp(x*x) - 2);
+    return (30.9504 * pow(x, 3) - 74.2202 * pow(x, 2) + 58.6036 * x - 15.3315);
 }
 
 double f_prima(double x)
