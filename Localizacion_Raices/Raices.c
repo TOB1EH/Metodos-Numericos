@@ -240,7 +240,9 @@ double f(double x)
     //return log(x) + exp(sin(x)) - x;
     // return (2*x + log(x) - sin(3*x));
     //  return (exp(x*x) - 2);
-    return (30.9504 * pow(x, 3) - 74.2202 * pow(x, 2) + 58.6036 * x - 15.3315);
+    // return (30.9504 * pow(x, 3) - 74.2202 * pow(x, 2) + 58.6036 * x - 15.3315);
+
+    return (((16.0 / (x * (3.141592654 * 3.141592654))) * log(2.0)) - 10.0);
 }
 
 double f_prima(double x)
@@ -287,7 +289,7 @@ void metodosCerrados ()
         do
         {
             metodo = 0; // Reiniciar metodo
-            system("clear"); // Limpiar la pantalla (Linux/Mac). En Windows usar "cls"
+            // system("clear"); // Limpiar la pantalla (Linux/Mac). En Windows usar "cls"
             printf("\n----------------------------------------\n");
             printf("   MÉTODOS CERRADOS\n");
             printf("----------------------------------------\n");
@@ -344,11 +346,11 @@ void metodosCerrados ()
             else {
 
                 printf("Metodo no valido. Error Inesperado.\n");
-                printf("Presione ENTER para continuar...");
-                getchar(); // Captura el ENTER pendiente del scanf anterior
-                getchar(); // Espera que el usuario presione ENTER
+                // printf("Presione ENTER para continuar...");
+                // getchar(); // Captura el ENTER pendiente del scanf anterior
+                // getchar(); // Espera que el usuario presione ENTER
                 
-                system("clear"); // Limpiar la pantalla (Linux/Mac). En Windows usar "cls"
+                // system("clear"); // Limpiar la pantalla (Linux/Mac). En Windows usar "cls"
                 return;
             }
 
@@ -379,11 +381,11 @@ void metodosCerrados ()
         printf("Error porcentual estimado: %lf %%\n", error_ptual);
         printf("Iteraciones: %d\n", i);
         printf("========================================\n");
-        printf("Presione ENTER para continuar...");
-        getchar(); // Captura el ENTER pendiente del scanf anterior
-        getchar(); // Espera que el usuario presione ENTER
+        // printf("Presione ENTER para continuar...");
+        // getchar(); // Captura el ENTER pendiente del scanf anterior
+        // getchar(); // Espera que el usuario presione ENTER
         
-        system("clear"); // Limpiar la pantalla (Linux/Mac). En Windows usar "cls"
+        // system("clear"); // Limpiar la pantalla (Linux/Mac). En Windows usar "cls"
 
     } while (opcion != 'c');
 }
@@ -551,9 +553,9 @@ void newtonRaphson ()
     printf("\n========================================\n");
     printf("         RESULTADO DEL CÁLCULO\n");
     printf("========================================\n");
-    printf("Raíz encontrada: %lf\n", x_1);
-    printf("Error absoluto estimado: %lf\n", error_abs);
-    printf("Error porcentual estimado: %lf %%\n", error_ptual);
+    printf("Raíz encontrada: %.10lf\n", x_1);
+    printf("Error absoluto estimado: %.10lf\n", error_abs);
+    printf("Error porcentual estimado: %.10lf %%\n", error_ptual);
     printf("Iteraciones: %d\n", i);
     if (fabs(f(x_1)) < 0.01)
         printf("Criterio de parada: tolerancia alcanzada.\n");
