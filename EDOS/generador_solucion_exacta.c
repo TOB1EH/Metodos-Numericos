@@ -41,7 +41,7 @@
  */
 double f(double x) {
     // PROBLEMA 3: y(x) = e^(-x)·sin(2x)
-    return exp(-x) * sin(2.0 * x);
+    // return exp(-x) * sin(2.0 * x);
     
     // Descomenta la función que necesites:
     // return x * x;                          // Parábola
